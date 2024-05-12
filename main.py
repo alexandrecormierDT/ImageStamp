@@ -9,7 +9,7 @@ import argparse
 
 def add_qrcode_to_image(_source_image:str,_code:str,_scale:float=2)->str:
     qrcode = generate_image_with_qr_code(str(_code),_scale)
-    new_image = put_image_on_image(_source_image,qrcode)
+    new_image = paste_image_in_corners(_source_image,qrcode)
     return new_image
 
 def generate_image_with_qr_code(_code,_scale:float=2):
@@ -17,19 +17,36 @@ def generate_image_with_qr_code(_code,_scale:float=2):
     path = generate_qrcode_image_path(_code)
     qr.png(path, scale=_scale)
     return path
+
+
+
     
-def put_image_on_image(_image_under,_image_over):
+def paste_image_in_corners(_image_under,_image_over):
     copy = copy_image_to_temp(_image_under)
-    img1 = Image.open(copy) 
-    rgb_im1 = img1.convert('RGB')
-    x_pixel_padding = 100
-    for index in range(2):
-        img2 = Image.open(_image_over) 
-        rgb_im2 = img2.convert('RGB')
-        y = 0
-        x = index * x_pixel_padding
-        rgb_im1.paste(rgb_im2, (x,y)) 
-    rgb_im1.save(copy, quality=95)
+    under = Image.open(copy) 
+    under_rgb = under.convert('RGB')
+    uW = under.width
+    uH = under.height
+    
+    over = Image.open(_image_over) 
+    over_rgb = over.convert('RGB')
+    oW = over.width
+    oH = over.height
+    
+    
+    x_pixel_padding = uW - oW
+    y_pixel_padding = uH - oH
+    
+    print(x_pixel_padding)
+    print(y_pixel_padding)
+    print(uW,uH,oW,oH)
+    
+    for i in range(2):
+        for j in range(2):
+            y = j * y_pixel_padding
+            x = i * x_pixel_padding
+            under_rgb.paste(over_rgb, (x,y)) 
+    under_rgb.save(copy, quality=95)
     return copy
     
 def copy_image_to_temp(_path):
@@ -60,7 +77,8 @@ def generate(_source_image,_code,_output_folder)->bool:
     new_image = add_qrcode_to_image(_source_image,_code)
     final_path = copy_image_to_output(new_image,_output_folder)
     data = decode_image(final_path)
-    print(data)
+    for qr in list(data):
+        print(qr)
     if data == _code:
         return True
     return False
@@ -96,6 +114,6 @@ if __name__=="__main__":
 
 
 '''
-python D:/1_TRAVAIL/WIP/CODING/sandbox/read_qrcode/main.py generate -i D:/1_TRAVAIL/WIP/CODING/resources/images/png/dog.png -c TEST -o D:/1_TRAVAIL/WIP/CODING/sandbox/read_qrcode/output
+python D:/1_TRAVAIL/WIP/CODING/repos/ImageStamp/main.py -generate -i D:/1_TRAVAIL/WIP/CODING/resources/images/png/dog.png -c TEST -o D:/1_TRAVAIL/WIP/CODING/repos/ImageStamp/output
 
 '''
