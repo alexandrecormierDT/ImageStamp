@@ -1,5 +1,5 @@
-from QRReader import QRReader
-from QRWriter import QRWriter
+from classes.ImageStamp import ImageStamp
+import argparse
     
 def main():
     print("ImageStamp")
@@ -12,13 +12,13 @@ def main():
     parser.add_argument("-s","--scale")
     args = parser.parse_args()
     
+    IS = ImageStamp()
+    
     if args.generate:
-        writer = QRWriter()
-        writer.generate(args.image_source,args.code,args.output_folder)
+        IS.generate(args.image_source,args.code,args.output_folder)
         
     if args.read:
-        reader = QRReader()
-        reader(args.image_source)
+        IS.read(args.image_source)
     
         
 if __name__=="__main__":

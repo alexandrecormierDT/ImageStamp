@@ -1,11 +1,6 @@
 import pyqrcode
 from PIL import Image
 from pyzbar.pyzbar import decode
-import uuid
-import os
-import shutil
-import sys
-import argparse
 
 
 class QRReader():
