@@ -8,7 +8,7 @@ class QRReader():
     def __init__(self):
         ...
         
-    def read(self,_path):
+    def read(self,_path)->dict:
         return self._decode_image(_path)
         
     def _decode_image(self,_path):
