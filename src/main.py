@@ -11,12 +11,13 @@ def main():
     parser.add_argument('-generate','--generate',action='store_true') 
     parser.add_argument('-combine','--combine',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
+    parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument("-i","--image_source",action='append' ,required=True)
     parser.add_argument("-c","--code")
     parser.add_argument("-o","--output_folder")
     parser.add_argument("-oi","--output_image")
     parser.add_argument("-s","--scale")
-    parser.add_argument("-p","--position")
+    parser.add_argument("-p","--position",default="all_corners")
 
     args = parser.parse_args()
     
@@ -30,17 +31,21 @@ def main():
     if args.combine:
         image_stream =IS.combine(image_stream)
 
+    if isinstance(image_stream,list):
+        image_stream = image_stream[0]
+        
     if args.add_text:
         image_stream = IS.add_text(image_stream,args.add_text)
 
+    if args.add_qrcode:
+        image_stream =IS.generate(image_stream,args.add_qrcode,args.position)
+
+    #obsolete
     if args.generate and args.code:
-        position = "all_corners"
-        if args.position:
-            position = args.position
-        image_stream =IS.generate(image_stream,args.code,position)
+        image_stream =IS.generate(image_stream,args.code,args.position)
+
 
     im = Image.open(image_stream)
-    im.show()
 
     if args.output_image:
         im.save(args.output_image)
