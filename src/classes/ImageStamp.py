@@ -17,7 +17,10 @@ class ImageStamp :
         
     def generate(self,_source:str,_code:str,_position="all_corners")->str:
         self._W.set_postion(_position)
-        return self._W.generate(_source,_code)
+        image = self._W.generate(_source,_code)
+        if image == "":
+            return _source
+        return image
     
     def read(self,_path:str)->str:
         return self._R.read(_path)
@@ -26,7 +29,7 @@ class ImageStamp :
         return self._C.combine(_paths)
     
     
-    def add_text(self,_path,_text)->str:
+    def add_text(self,_path:str,_text:str)->str:
         self._T.set_background_color("white")
         self._T.set_text_color("black")
         return self._T.add_text(_path,_text)

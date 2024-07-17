@@ -19,6 +19,8 @@ class QRWriter ():
         if os.path.exists(_source_image)==False:
             return False
         new_image = self._add_qrcode_to_image(_source_image,_code)
+        if new_image == "":
+             return ""
         temp = self._generate_tmp_path()
         new_image.save(temp)
         return temp
@@ -33,20 +35,28 @@ class QRWriter ():
         data = decode(Image.open(_path))
         return data
     
-    def _calculate_qr_scale(self,_source_image):
+    def _calculate_qr_scale(self,_source_image)->float:
         source = Image.open(_source_image)
         scale = source.width*0.0020
+        if scale <= 1:
+             scale = 1
         return scale
         ...
 
     def _add_qrcode_to_image(self,_source_image:str,_code:str)->Image:
         qrcode = self._generate_image_with_qr_code(str(_code),self._calculate_qr_scale(_source_image))
+        if qrcode == "":
+             return ""
         new_image = self._paste_image_in_corners(_source_image,qrcode)
         return new_image
 
     def _generate_image_with_qr_code(self,_code,_scale:float=8)->Image:
+        print("[QRWriter] code = "+_code)
+        print("[QRWriter] scale "+str(_scale))
         qr = pyqrcode.create(_code)
         path = self._generate_qrcode_image_path(_code)
+        print("[QRWriter] temp file = "+path)
+        print(f"[QRWriter] {qr}")
         qr.png(path, scale=_scale)
         return path
 

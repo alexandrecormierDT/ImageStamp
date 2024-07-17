@@ -63,5 +63,10 @@ if __name__=="__main__":
     python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -generate -i "P:/projects/billy/library/boxanim/assets/Character/ch_biff_le_borgne/png/ch_biff_le_borgne.png" -c 1897 -o "P:/projects/riv/temp_no_backup/image_stamp"
     python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -generate -i "P:/projects/billy/library/boxanim/assets/Character/ch_billy/png/ch_billy.png" -c 1897 -o "P:/projects/riv/temp_no_backup/image_stamp"
     python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -combine -i "P:/projects/billy/render/png/assets/library/master/ch_billy/t-0001.png" -i "P:/projects/billy/render/png/assets/library/master/ch_billy/t-0002.png" -add_text "this is my text" -o "P:/projects/riv/temp_no_backup/image_stamp" -generate -c "mycode"
+    python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -add_text "test" -i "P:/projects/testa/temp_no_backup/render/packboard/download/bg_bil_ext_m_a1_multipl.png" -oi "P:/projects/testa/temp_no_backup/render/packboard/test/add_text.png"
+    python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -add_text "test" -add_qrcode "my_code" -i "P:/projects/testa/temp_no_backup/render/packboard/download/bg_bil_ext_m_a1_multipl.png" -oi "P:/projects/testa/temp_no_backup/render/packboard/test/add_text.png"
 
-'''
+    
+    
+    
+    '''
