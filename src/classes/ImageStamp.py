@@ -2,6 +2,7 @@ from classes.QRReader import QRReader
 from classes.QRWriter import QRWriter
 from classes.Combiner import Combiner
 from classes.TextWriter import TextWriter
+from classes.ImageFilter import ImageFilter
 from PIL import Image
 
 class ImageStamp : 
@@ -10,6 +11,7 @@ class ImageStamp :
     _W:QRWriter = QRWriter()
     _C:Combiner = Combiner()
     _T:TextWriter = TextWriter()
+    _F:ImageFilter = ImageFilter()
     
     def __init__(self):
         
@@ -33,5 +35,9 @@ class ImageStamp :
         self._T.set_background_color("white")
         self._T.set_text_color("black")
         return self._T.add_text(_path,_text)
+    
+    def apply_filter(self,_path:str,_f:str)->str:
+        self._F.set_filter(_f)
+        return self._F.apply_filter(_path)
     
     

@@ -12,6 +12,7 @@ def main():
     parser.add_argument('-combine','--combine',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
+    parser.add_argument('-apply_filter','--apply_filter') 
     parser.add_argument("-i","--image_source",action='append' ,required=True)
     parser.add_argument("-c","--code")
     parser.add_argument("-o","--output_folder")
@@ -39,6 +40,9 @@ def main():
 
     if args.add_qrcode:
         image_stream =IS.generate(image_stream,args.add_qrcode,args.position)
+
+    if args.apply_filter:
+        image_stream =IS.apply_filter(image_stream,args.apply_filter)
 
     #obsolete
     if args.generate and args.code:
