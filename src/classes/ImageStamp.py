@@ -27,7 +27,8 @@ class ImageStamp :
     def read(self,_path:str)->str:
         return self._R.read(_path)
     
-    def combine(self,_paths:list)->str:
+    def combine(self,_paths:list,_axe:str="H")->str:
+        self._C.set_axe(_axe)
         return self._C.combine(_paths)
     
     

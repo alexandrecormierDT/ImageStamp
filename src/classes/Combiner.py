@@ -6,18 +6,52 @@ import uuid
 class Combiner():
     
     def __init__(self):
+        self._axe= "H"
+        self._crop = True
         ...
         
     def combine(self,_paths:list)->str:
         print(_paths)
-        cropped_images = []
-        for path in _paths:
-            cropped_images.append(self._crop_to_bbox(path))
+        images = _paths
+        if self._crop:
+            images = []
+            for path in _paths:
+                images.append(self._crop_to_bbox(path))
         temp = self._generate_tmp_path()+".png"
-        final_image = self._combine_images(cropped_images,temp)
+        if self._axe == "H":
+            self._combine_images_horizontaly(images,temp)
+        if self._axe == "V":
+            self._combine_images_verticaly(images,temp)
         return temp
+    
+    def set_axe(self,_axe:str):
+        self._axe = _axe
+        return self
+    
+    def set_crop(self,_c:bool):
+        self._crop = _c
+        return self
+    
+    def _combine_images_verticaly(self,_paths,_output,_padding=100):
+        images = [Image.open(x) for x in _paths]
+        widths, heights = zip(*(i.size for i in images))
 
-    def _combine_images(self,_paths,_output,_padding=100):
+        total_height = sum(heights)+(_padding*(len(_paths)+1))
+        max_width = max(widths)
+
+        new_im = Image.new('RGBA', (max_width,total_height))
+
+        x_offset = 0
+        y_offset = _padding
+
+        for im in images:
+            new_im.paste(im, (x_offset,y_offset))
+            x_offset += im.size[1]+_padding
+
+        new_im.save(_output)
+        return new_im
+    
+    def _combine_images_horizontaly(self,_paths,_output,_padding=100):
         images = [Image.open(x) for x in _paths]
         widths, heights = zip(*(i.size for i in images))
 
@@ -27,8 +61,10 @@ class Combiner():
         new_im = Image.new('RGBA', (total_width, max_height))
 
         x_offset =_padding
+        y_offset = 0
+
         for im in images:
-            new_im.paste(im, (x_offset,0))
+            new_im.paste(im, (x_offset,y_offset))
             x_offset += im.size[0]+_padding
 
         new_im.save(_output)
