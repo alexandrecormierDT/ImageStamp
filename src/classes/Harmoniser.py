@@ -31,7 +31,7 @@ class Harmoniser():
                 new_path = new_folder+"/"+os.path.basename(path)
                 if os.path.exists(new_folder)==False:
                     os.mkdir(new_folder)
-            img.save(new_path)
+            new_blank_img.save(new_path)
             new_images.append(new_path)
 
         return new_images
