@@ -10,6 +10,7 @@ def main():
     parser.add_argument('-read','--read',action='store_true') 
     parser.add_argument('-generate','--generate',action='store_true') 
     parser.add_argument('-combine','--combine',action='store_true') 
+    parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument('-apply_filter','--apply_filter') 
@@ -31,6 +32,9 @@ def main():
 
     if args.combine:
         image_stream =IS.combine(image_stream)
+
+    if args.maximise:
+        image_stream =IS.maximise(image_stream)
 
     if isinstance(image_stream,list):
         image_stream = image_stream[0]

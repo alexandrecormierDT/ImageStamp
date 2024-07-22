@@ -3,6 +3,7 @@ from classes.QRWriter import QRWriter
 from classes.Combiner import Combiner
 from classes.TextWriter import TextWriter
 from classes.ImageFilter import ImageFilter
+from classes.Harmoniser import Harmoniser
 from PIL import Image
 
 class ImageStamp : 
@@ -10,6 +11,7 @@ class ImageStamp :
     _R:QRReader = QRReader()
     _W:QRWriter = QRWriter()
     _C:Combiner = Combiner()
+    _H:Harmoniser = Harmoniser()
     _T:TextWriter = TextWriter()
     _F:ImageFilter = ImageFilter()
     
@@ -30,6 +32,9 @@ class ImageStamp :
     def combine(self,_paths:list,_axe:str="H")->str:
         self._C.set_axe(_axe)
         return self._C.combine(_paths)
+    
+    def maximise(self,_paths:list,_axe:str="H")->str:
+        return self._H.maximise(_paths)
     
     
     def add_text(self,_path:str,_text:str)->str:
