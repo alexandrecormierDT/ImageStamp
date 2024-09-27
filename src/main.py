@@ -45,12 +45,15 @@ def main():
     if args.add_qrcode:
         image_stream =IS.generate(image_stream,args.add_qrcode,args.position)
 
+
     if args.apply_filter:
         image_stream =IS.apply_filter(image_stream,args.apply_filter)
 
     #obsolete
     if args.generate and args.code:
         image_stream =IS.generate(image_stream,args.code,args.position)
+        data = IS.read(image_stream)
+        print(data)
 
 
     im = Image.open(image_stream)
@@ -76,6 +79,7 @@ if __name__=="__main__":
     python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -apply_filter "BW"  -i "P:/projects/testa/temp_no_backup/render/packboard/download/bg_bil_ext_m_a1_multipl.png" -oi "P:/projects/testa/temp_no_backup/render/packboard/test/add_text.png"
 
     
+    python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -generate -i "P:/projects/billy/library/boxanim/assets/Character/ch_billy/png/ch_billy.png" -c 1897 -o "P:/projects/riv/temp_no_backup/image_stamp"
     
     
     '''
