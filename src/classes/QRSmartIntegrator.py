@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageEnhance
 import PIL.ImageOps    
 
 
-class QRWriter ():
+class QRSmartIntegrator():
 
     _MSD:MonochromaticSquareDetector = MonochromaticSquareDetector()
     
@@ -20,11 +20,10 @@ class QRWriter ():
         self._under_path = ""
         self._over_path = ""
         self._scale_factor = 0.0020
-        self._contrast = 5
+        self._contrast = 10
         self._transparency = 1
         self._rgb_over:Image = None
         self._rgb_under:Image = None
-        self._grid_division:int = 2
 
         ...
 
@@ -33,22 +32,16 @@ class QRWriter ():
 
     def set_scale_factor(self,_v:int):
         value = int(_v)
-        self._scale_factor = value/10000
+        self._scale_factor = float(value/10000)
 
     def set_contrast(self,_v:int):
         value = int(_v)
         self._contrast= value
 
-    def set_grid_division(self,_v:int):
-        value = int(_v)
-        self._grid_division= value
-
     def set_transparency(self,_v:int):
-        v = int(_v)
-        if v == 0:
-             v=1
-        value = float(100/int(v))
+        value = float(1/int(_v))
         self._transparency= value
+
 
     def generate(self,_source_image:str,_code:str,_mode:str="")->str:
         if os.path.exists(_source_image)==False:
@@ -74,16 +67,13 @@ class QRWriter ():
         source = Image.open(_source_image)
         factor = self._scale_factor
         scale = source.width*factor
-        print("SCALE")
-        print(scale)
         if scale <= 1:
              scale = 1
         return scale
         ...
 
     def _add_qrcode_to_image(self,_source_image:str,_code:str,_mode:str="")->Image:
-        qrcode_scale = self._calculate_qr_scale(_source_image)
-        qrcode_image = self._generate_image_with_qr_code(str(_code),qrcode_scale)
+        qrcode_image = self._generate_image_with_qr_code(str(_code),self._calculate_qr_scale(_source_image))
         if qrcode_image == "":
              return ""
         new_image = self._paste_image(_source_image,qrcode_image)
@@ -100,7 +90,7 @@ class QRWriter ():
         return path
 
         
-    def _paste_image(self,_image_under:str,_image_over:str)->Image:
+    def _paste_image(self,_image_under,_image_over)->Image:
         self._under_path = _image_under
         self._over_path = _image_over
         under = Image.open(_image_under) 
@@ -163,19 +153,17 @@ class QRWriter ():
 
         if _pos == "grid":
 
-            under = PIL.ImageOps.grayscale(_under)
+            _under = PIL.ImageOps.grayscale(_under)
 
             margin = 20
 
-            grid_division = self._grid_division
+            grid_division = 3
 
             print(uW)
             print(uH)
 
             column_width = int(x_pixel_padding/grid_division)
             row_width = int(y_pixel_padding/grid_division)
-            print(column_width)
-            print(row_width)
             x=0
             y=0
             
@@ -183,8 +171,7 @@ class QRWriter ():
                 y =row_width*i
                 for j in range(grid_division+1):
                     x = column_width*j
-                    result =self._integrate(under,_over,x,y)
-
+                    result =self._integrate(_under,_over,x,y)
 
         if _pos == "random":
 
@@ -246,11 +233,11 @@ class QRWriter ():
             rgb_over.putalpha(a_channel)
             self._rgb_over = rgb_over
 
-        over_width= _over.width
-        average_color = self._get_average_color_behind(self._rgb_under,_x,_y,over_width)
+        oW = _over.width
+        average_color = self._get_average_color_behind(self._rgb_under,_x,_y,oW)
         displayed_color = self._display_color(average_color)
         hex = '#%02x%02x%02x' % (displayed_color, displayed_color, displayed_color)
-        background = Image.new('RGB',(over_width,over_width),hex)
+        background = Image.new('RGB',(oW,oW),hex)
         result = self._combine_images(_under,background,_x,_y,self._rgb_over)
         return result
 
@@ -274,14 +261,13 @@ class QRWriter ():
     
     def _display_color(self,_value):
         gap = self._contrast
-        half_tone = 80
         if _value == 255:
               return _value-gap
         if _value == 0:
               return _value+gap
-        if _value >= half_tone and _value < 255-gap:
+        if _value >= 100 and _value < 255-gap:
               return _value-gap
-        if _value <= half_tone:
+        if _value <= 100:
               return _value+gap
         return _value
     

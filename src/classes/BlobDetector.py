@@ -38,6 +38,22 @@ class BlobDetector:
         if _int < 0:
             return _int*-1
         return _int
+    
+
+    def _square_color_variation_is_bellow_thres(self,_image:cv2.typing.MatLike,_top_x:int,_top_y:int,_width:int,_thres:int):
+
+
+
+    def _pixels_color_variation_is_bellow_thres(self,_image:cv2.typing.MatLike,_pixels:list[list],_start_value:int=0,_thres:int=100)->bool:
+        last_value = _start_value
+        for pix in _pixels:
+            value = _image[pix["y"],pix["x"]] 
+            value_distance = self._unsgined(last_value -value )
+            if value_distance > _thres:
+                return False
+            last_value = value
+        return True
+
 
     def _detect_contrast_points(self,_image_path:str,_width)->list:
 
@@ -60,17 +76,11 @@ class BlobDetector:
         thres = 200
         points = []
         aproximation = 1
-        distance_count = 0
-        average_distance = 0
-        distance_sum=0
         last_x_value = 0
         last_y_value = 0
-        first_point = {}
         x_distance = 0
-        y_distance = 0
 
         max_points = 300
-        
         
         # loop over the image, pixel by pixel
 

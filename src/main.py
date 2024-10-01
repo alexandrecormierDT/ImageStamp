@@ -16,6 +16,10 @@ def main():
     parser.add_argument('-apply_filter','--apply_filter') 
     parser.add_argument("-i","--image_source",action='append' ,required=True)
     parser.add_argument("-c","--code")
+    parser.add_argument("-ct","--contrast")
+    parser.add_argument("-tr","--transparency")
+    parser.add_argument("-sf","--scale_factor")
+    parser.add_argument("-gd","--grid_division")
     parser.add_argument("-o","--output_folder")
     parser.add_argument("-oi","--output_image")
     parser.add_argument("-s","--scale")
@@ -49,11 +53,90 @@ def main():
     if args.apply_filter:
         image_stream =IS.apply_filter(image_stream,args.apply_filter)
 
-    #obsolete
     if args.generate and args.code:
-        image_stream =IS.generate(image_stream,args.code,args.position)
-        data = IS.read(image_stream)
+
+        contrast = 5
+        scale = 18
+        position  ="blobs"
+        code = args.code
+        transparency = 1
+        grid_division = 3
+
+        if args.contrast:
+            contrast =args.contrast
+        if args.grid_division:
+            grid_division =args.grid_division
+        if args.scale_factor:
+            scale_factor=args.scale_factor
+        if args.position:
+            position = args.position
+        if args.transparency:
+            transparency = args.transparency
+
+        max_trial = 20
+
+        increment_table = {
+            "contrast":int(100/max_trial),
+            "scale":int(100/max_trial),
+            "transparency":0,
+            "division":0
+        }
+
+        data = []
+        minimum_detected_qrcode = 1
+
+        #image_stream =IS.generate(image_stream,code,"grid")
+        original_image = image_stream
+
+        IS.set_grid_division(grid_division)
+        IS.set_scale(scale)
+        IS.set_transparency(transparency)
+
+        for trial in range(0,max_trial):
+
+            match = 0
+
+            #split the image in sub parts and test the qrcodes
+            split_division = 2
+            split = IS.split(image_stream,split_division)
+
+            for image_part in split:
+                data = IS.read(image_part)
+                print(data)
+                if len(data)>=minimum_detected_qrcode:
+                    match+=1
+
+            # if qrcodes where detected in all the parts : 
+            match_target = split_division*2
+
+            if match>=match_target:
+                print(match)
+                return image_stream   
+             
+            print("QR CODE NOT VISIBLE -- TRIAL "+str(trial))
+            IS.set_contrast(contrast)
+            IS.set_transparency(transparency)
+            image_stream =IS.generate(original_image,code,"grid")
+            contrast+=increment_table["contrast"]
+            scale+=increment_table["scale"]
+            transparency+=increment_table["transparency"]
         print(data)
+        return image_stream
+
+        #OLD
+        for trial in range(0,max_trial):
+            data = IS.read(image_stream)
+            if len(data)>=minimum_detected_qrcode:
+                break
+            IS.set_contrast(contrast)
+            IS.set_scale_factor(scale_factor)
+            image_stream =IS.generate(original_image,code,position)
+            print("QR CODE NOT VISIBLE -- INCREASING SCALE AND CONTRAST")
+            contrast+=contrast_increment
+            scale_factor+=scale_increment
+        print(data)
+        return image_stream
+
 
 
     im = Image.open(image_stream)
