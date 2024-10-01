@@ -163,7 +163,7 @@ class QRWriter ():
 
         if _pos == "grid":
 
-            under = PIL.ImageOps.grayscale(_under)
+            
 
             margin = 20
 
@@ -183,7 +183,7 @@ class QRWriter ():
                 y =row_width*i
                 for j in range(grid_division+1):
                     x = column_width*j
-                    result =self._integrate(under,_over,x,y)
+                    result =self._integrate(_under,_over,x,y)
 
 
         if _pos == "random":
@@ -225,8 +225,6 @@ class QRWriter ():
             
             '''
             
-        result.show()
-
         return result
     
     def _integrate(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:
@@ -275,15 +273,20 @@ class QRWriter ():
     def _display_color(self,_value):
         gap = self._contrast
         half_tone = 80
+        new_color = _value
         if _value == 255:
-              return _value-gap
+              new_color = _value-gap
         if _value == 0:
-              return _value+gap
+              new_color = _value+gap
         if _value >= half_tone and _value < 255-gap:
-              return _value-gap
+              new_color = _value-gap
         if _value <= half_tone:
-              return _value+gap
-        return _value
+              new_color = _value+gap
+        if new_color > 255:
+             return 255
+        if new_color < 0:
+             return 0
+        return new_color
     
     def _get_hex_value_of_pixel(_image:Image,_x,_y)->str:
         rgb_im = _image.convert('RGB')

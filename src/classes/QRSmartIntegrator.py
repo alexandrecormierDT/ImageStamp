@@ -212,8 +212,6 @@ class QRSmartIntegrator():
             
             '''
             
-        result.show()
-
         return result
     
     def _integrate(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:

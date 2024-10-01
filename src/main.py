@@ -56,11 +56,10 @@ def main():
     if args.generate and args.code:
 
         contrast = 5
-        scale = 18
-        position  ="blobs"
+        scale = 25
         code = args.code
         transparency = 1
-        grid_division = 3
+        grid_division = 4
 
         if args.contrast:
             contrast =args.contrast
@@ -73,7 +72,7 @@ def main():
         if args.transparency:
             transparency = args.transparency
 
-        max_trial = 20
+        max_trial = 30
 
         increment_table = {
             "contrast":int(100/max_trial),
@@ -85,33 +84,47 @@ def main():
         data = []
         minimum_detected_qrcode = 1
 
-        #image_stream =IS.generate(image_stream,code,"grid")
+        image_stream =IS.grayscale(image_stream)
         original_image = image_stream
 
         IS.set_grid_division(grid_division)
         IS.set_scale(scale)
         IS.set_transparency(transparency)
+        IS.grayscale(image_stream)
+
 
         for trial in range(0,max_trial):
 
-            match = 0
 
             #split the image in sub parts and test the qrcodes
             split_division = 2
             split = IS.split(image_stream,split_division)
+            split.append(image_stream)
+            split.extend(IS.split(image_stream,split_division+2))
 
+            image_data = []
+
+            match = 0
             for image_part in split:
-                data = IS.read(image_part)
-                print(data)
-                if len(data)>=minimum_detected_qrcode:
+                image_data = IS.read(image_part)
+                if len(image_data)>=minimum_detected_qrcode:
+                    print("--------- MATCH")
                     match+=1
+                    data = image_data
+                #testing on inveted image
+                inverted_image= IS.invert(image_part)
+                image_data=IS.read(inverted_image)
+                if len(image_data)>=minimum_detected_qrcode:
+                    print("---------INVERTED MATCH")
+                    match+=1
+                    data = image_data
 
             # if qrcodes where detected in all the parts : 
-            match_target = split_division*2
+            match_target = (split_division*2)+1
 
             if match>=match_target:
-                print(match)
-                return image_stream   
+                print(f"REQUIRED MINIMUM OF VISIBLE {match_target} QRCODE REACHED = {match} ")
+                break
              
             print("QR CODE NOT VISIBLE -- TRIAL "+str(trial))
             IS.set_contrast(contrast)
@@ -120,26 +133,12 @@ def main():
             contrast+=increment_table["contrast"]
             scale+=increment_table["scale"]
             transparency+=increment_table["transparency"]
-        print(data)
-        return image_stream
 
-        #OLD
-        for trial in range(0,max_trial):
-            data = IS.read(image_stream)
-            if len(data)>=minimum_detected_qrcode:
-                break
-            IS.set_contrast(contrast)
-            IS.set_scale_factor(scale_factor)
-            image_stream =IS.generate(original_image,code,position)
-            print("QR CODE NOT VISIBLE -- INCREASING SCALE AND CONTRAST")
-            contrast+=contrast_increment
-            scale_factor+=scale_increment
         print(data)
-        return image_stream
-
 
 
     im = Image.open(image_stream)
+    im.show()
 
     if args.output_image:
         im.save(args.output_image)

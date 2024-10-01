@@ -4,7 +4,8 @@ from classes.Combiner import Combiner
 from classes.TextWriter import TextWriter
 from classes.ImageFilter import ImageFilter
 from classes.Harmoniser import Harmoniser
-from PIL import Image
+from PIL import Image,ImageOps,ImageChops
+
 import uuid
 import os
 
@@ -40,9 +41,22 @@ class ImageStamp :
     
     def set_transparency(self,_v):
         self._W.set_transparency(_v)
+
+    def grayscale(self,_path:str)->str:
+        image = Image.open(_path).convert("RGB")
+        grayscale = ImageOps.grayscale(image)
+        path = self._get_temp_image_path()
+        grayscale.save(path)
+        return path
     
     def read(self,_path:str)->str:
         return self._R.read(_path)
+    
+    def invert(self,_path:str)->str:
+        inverted_image =ImageChops.invert(Image.open(_path).convert("RGB"))
+        path = self._get_temp_image_path()
+        inverted_image.save(path)
+        return path
     
     def combine(self,_paths:list,_axe:str="H")->str:
         self._C.set_axe(_axe)
@@ -62,7 +76,7 @@ class ImageStamp :
         return self._F.apply_filter(_path)
     
     def crop(self,_path:str,_x1:int=0,_x2:int=0,_y1:int=0,_y2:int=0)->Image:
-                # Opens a image in RGB mode
+        # Opens a image in RGB mode
         im = Image.open(_path)
         
         # Cropped image of above dimension
