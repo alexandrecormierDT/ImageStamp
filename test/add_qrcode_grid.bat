@@ -8,4 +8,4 @@ set input_image=%root%test\input\png\billy_decor.png
 set asset_id=8946
 set output_path=%root%test\output\generate\billy_decor_qrcode_%serial%.png
 echo.%script_path% 
-python %script_path% -generate -i %input_image% -c %asset_id% -oi %output_path% -p blobs
+python %script_path% -add_qrcode %asset_id% -i %input_image% -oi %output_path% -im grid

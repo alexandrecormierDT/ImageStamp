@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageEnhance
 import PIL.ImageOps    
 
 
-class QRSmartIntegrator():
+class QRAdaptiveIntegrator():
 
     _MSD:MonochromaticSquareDetector = MonochromaticSquareDetector()
     

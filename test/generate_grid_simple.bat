@@ -8,4 +8,4 @@ set input_image=%root%test\input\png\simple_shape.png
 set asset_id=8946
 set output_path=%root%test\output\generate\simple_%serial%.png
 echo.%script_path% 
-python %script_path% -generate -i %input_image% -c %asset_id% -oi %output_path% -p blobs
+python %script_path% -generate -i %input_image% -c %asset_id% -oi %output_path% -im grid

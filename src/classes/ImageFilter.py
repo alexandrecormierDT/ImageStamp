@@ -2,11 +2,14 @@
 
 '''
 
-from PIL import Image
+from PIL import Image,ImageOps,ImageChops
 import os
 import uuid
+from classes.PathManager import PathManager
 
 class ImageFilter():
+
+    _PM:PathManager = PathManager()
     
     def __init__(self):
         self._current_filter = "BW"
@@ -28,6 +31,20 @@ class ImageFilter():
         ...
 
 
+    def grayscale(self,_path:str)->str:
+        image = Image.open(_path).convert("RGB")
+        grayscale = ImageOps.grayscale(image)
+        path = self._PM.get_temp_image_path()
+        grayscale.save(path)
+        return path
+    
+    def invert(self,_path:str)->str:
+        inverted_image =ImageChops.invert(Image.open(_path).convert("RGB"))
+        path = self._PM.get_temp_image_path()
+        inverted_image.save(path)
+        return path
+    
+    
     def _generate_tmp_path(self)->str:
         image_folder= os.getenv("TEMP")
         image_name = str(uuid.uuid4())[-15:]

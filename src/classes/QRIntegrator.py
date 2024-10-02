@@ -1,0 +1,79 @@
+from PIL import Image
+from classes.QRWriter import QRWriter
+from classes.ImageFilter import ImageFilter
+from classes.QRReader import QRReader
+from classes.MonochromaticSquareDetector import MonochromaticSquareDetector
+import math 
+
+class QRIntegrator ():
+
+    _W:QRWriter = QRWriter()
+    _F:ImageFilter = ImageFilter()
+    _R:QRReader = QRReader()
+    _max_trials = 30
+    
+    def __init__(self):
+        self._strategy = "optimaly_hidden"
+        ...
+
+    def set_strategy(self,_s:str):
+        self._strategy = str(_s)
+
+    def set_integration_mode(self,_im:str):
+        self._W.set_integration_mode(_im)
+
+    def set_scale_factor(self,_v:int):
+        self._W.set_scale_factor(_v)
+
+    def set_contrast(self,_v:int):
+        self._W.set_contrast(_v)
+
+    def set_grid_division(self,_v:int):
+        self._W.set_grid_division(_v)
+
+    def set_transparency(self,_v:int):
+        self._W.set_transparency(_v)
+
+    def add_qrcode(self,_source_image:str,_code:str,_integration_mode:str="grid")->str:
+        if self._strategy == "optimaly_hidden":
+            return self._add_qrcode_optimaly_hidden(_source_image,_code,_integration_mode)
+        return self._W.add_qrcode(_source_image,_code,_integration_mode)
+    
+    def _add_qrcode_optimaly_hidden(self,_source_image:str,_code:str,_integration_mode:str="grid"):
+
+        contrast = 5
+        scale = 20
+        code = _code
+        transparency = 1
+        grid_division = 4
+        integration_mode = _integration_mode
+
+        max_trial = self._max_trials
+
+        increment_table = {
+            "contrast":int(100/max_trial),
+        }
+
+        image_stream =self._F.grayscale(_source_image)
+        original_image = image_stream
+
+        self._W.set_grid_division(grid_division)
+        self._W.set_scale_factor(scale)
+        self._W.set_transparency(transparency)
+        self._W.set_contrast(contrast)
+
+        match_target = 5
+
+        for trial in range(0,max_trial):
+
+            if self._R.evaluate(image_stream,match_target)==True:
+                print(f"REQUIRED MINIMUM OF VISIBLE {match_target} QRCODE REACHED ")
+                break
+            print("QR CODE NOT VISIBLE -- TRIAL "+str(trial))
+            contrast+=increment_table["contrast"]
+            self._W.set_contrast(contrast)
+            image_stream =self._W.add_qrcode(original_image,code,integration_mode)
+
+        return image_stream
+
+    

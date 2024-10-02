@@ -16,7 +16,7 @@ class QRWriter ():
     _MSD:MonochromaticSquareDetector = MonochromaticSquareDetector()
     
     def __init__(self):
-        self._position = "all_corners" # all_corners , top_left  ect...
+        self._integration_mode = "grid" # all_corners , top_left  ect...
         self._under_path = ""
         self._over_path = ""
         self._scale_factor = 0.0020
@@ -25,11 +25,10 @@ class QRWriter ():
         self._rgb_over:Image = None
         self._rgb_under:Image = None
         self._grid_division:int = 2
-
         ...
 
-    def set_postion(self,_pos:str):
-         self._position = _pos
+    def set_integration_mode(self,_im:str):
+         self._integration_mode = str(_im)
 
     def set_scale_factor(self,_v:int):
         value = int(_v)
@@ -50,10 +49,10 @@ class QRWriter ():
         value = float(100/int(v))
         self._transparency= value
 
-    def generate(self,_source_image:str,_code:str,_mode:str="")->str:
+    def add_qrcode(self,_source_image:str,_code:str,_integration_mode:str="")->str:
         if os.path.exists(_source_image)==False:
             return False
-        new_image = self._add_qrcode_to_image(_source_image,_code,_mode)
+        new_image = self._add_qrcode_to_image(_source_image,_code,_integration_mode)
         if new_image == "":
              return ""
         temp = self._generate_tmp_path()
@@ -81,7 +80,8 @@ class QRWriter ():
         return scale
         ...
 
-    def _add_qrcode_to_image(self,_source_image:str,_code:str,_mode:str="")->Image:
+    def _add_qrcode_to_image(self,_source_image:str,_code:str,_integration_mode:str="")->Image:
+        self.set_integration_mode(_integration_mode)
         qrcode_scale = self._calculate_qr_scale(_source_image)
         qrcode_image = self._generate_image_with_qr_code(str(_code),qrcode_scale)
         if qrcode_image == "":
@@ -109,7 +109,7 @@ class QRWriter ():
         over = Image.open(_image_over) 
         over_rgb = over.convert('RGB')
 
-        with_qr_codes = self._paste_qrcodes(under_rgb,over_rgb,self._position)
+        with_qr_codes = self._paste_qrcodes(under_rgb,over_rgb,self._integration_mode)
         return with_qr_codes
     
     def _combine_images(self,_under:Image,_over:Image,_x:int=0,_y:int=0,_mask=None)->Image:
@@ -120,7 +120,7 @@ class QRWriter ():
         return _under
 
     
-    def _paste_qrcodes(self,_under:Image,_over:Image,_pos:str)->Image:
+    def _paste_qrcodes(self,_under:Image,_over:Image,_integration_mode:str)->Image:
 
         uW = _under.width
         uH = _under.height
@@ -133,27 +133,27 @@ class QRWriter ():
 
         result = None
         
-        if _pos == "top_left":
+        if _integration_mode == "top_left":
                 y = 0 * y_pixel_padding
                 x = 0 * x_pixel_padding
                 self._combine_images(_under,_over,x,y) 
 
-        if _pos == "top_right":
+        if _integration_mode == "top_right":
                 y = 0 * y_pixel_padding
                 x = 1 * x_pixel_padding
                 self._combine_images(_under,_over,x,y) 
 
-        if _pos == "bottom_right":
+        if _integration_mode== "bottom_right":
                 y = 1 * y_pixel_padding
                 x = 1 * x_pixel_padding
                 self._combine_images(_under,_over,x,y) 
 
-        if _pos == "bottom_left":
+        if _integration_mode == "bottom_left":
                 y = 1 * y_pixel_padding
                 x = 0 * x_pixel_padding
                 self._combine_images(_under,_over,x,y)  
 
-        if _pos == "all_corners":
+        if _integration_mode == "all_corners":
             margin = 20
             for i in range(2):
                 for j in range(2):
@@ -161,38 +161,26 @@ class QRWriter ():
                     x = (i * x_pixel_padding-margin)+margin
                     result =self._combine_images(_under,_over,x,y) 
 
-        if _pos == "grid":
-
-            
-
-            margin = 20
+        if _integration_mode == "grid":
 
             grid_division = self._grid_division
-
-            print(uW)
-            print(uH)
-
             column_width = int(x_pixel_padding/grid_division)
             row_width = int(y_pixel_padding/grid_division)
-            print(column_width)
-            print(row_width)
             x=0
             y=0
-            
             for i in range(grid_division+1):
                 y =row_width*i
                 for j in range(grid_division+1):
                     x = column_width*j
-                    result =self._integrate(_under,_over,x,y)
+                    result =self._hide_in(_under,_over,x,y)
 
-
-        if _pos == "random":
+        if _integration_mode == "random":
 
             for i in range(30):
                 random_position = self._random_position_in_rect(x_pixel_padding,x_pixel_padding)
                 result = self._combine_images(_under,_over,random_position["x"],random_position["y"]) 
 
-        if _pos == "blobs":
+        if _integration_mode == "fill":
 
             _under = PIL.ImageOps.grayscale(_under)
 
@@ -205,29 +193,11 @@ class QRWriter ():
             for pt in points:
                 x = int(pt["x"])
                 y = int(pt["y"])
-                result = self._integrate(_under,_over,x,y)
-
-            '''
-            rgb_im = _under.convert('RGB')
-            bbox = BD.get_blobs(self._under_path,oW,oW)
-            adpated_over = _over
-            for box in bbox:
-                x1= box[0][0]
-                y1= box[0][1]
-                x2= box[1][0]
-                y2= box[1][1]
-                r, g, b = rgb_im.getpixel((x, y))
-                shape = [(x1,y1),(x2,y2)] 
-                img = Image.new("RGB", (50, 50)) 
-                rectangle = ImageDraw.Draw(img)  
-                rectangle.rectangle(shape, fill ="# ffff33") 
-                result = self._combine_images(_under,rectangle,x1,y1) 
-            
-            '''
+                result = self._hide_in(_under,_over,x,y)
             
         return result
     
-    def _integrate(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:
+    def _hide_in(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:
 
         if self._rgb_under == None:
              self._rgb_under = _under.convert('RGB')
