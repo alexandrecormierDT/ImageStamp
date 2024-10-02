@@ -2,8 +2,6 @@ from PIL import Image
 from classes.QRWriter import QRWriter
 from classes.ImageFilter import ImageFilter
 from classes.QRReader import QRReader
-from classes.MonochromaticSquareDetector import MonochromaticSquareDetector
-import math 
 
 class QRIntegrator ():
 
