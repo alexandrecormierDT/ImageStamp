@@ -48,9 +48,9 @@ def main():
         image_stream = IS.add_text(image_stream,args.add_text)
 
     if args.add_qrcode:
+        code = args.add_qrcode
         integration_mode = "grid"
         strategy = "optimaly_hidden"
-        code = args.add_qrcode
         if args.integration_mode:
             integration_mode = args.integration_mode
         if args.strategy:
