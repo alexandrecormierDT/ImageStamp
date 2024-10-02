@@ -5,15 +5,12 @@ import uuid
 import os
 import shutil
 import random
-from classes.MonochromaticSquareDetector import MonochromaticSquareDetector
 import math 
 from PIL import Image, ImageDraw, ImageEnhance
 import PIL.ImageOps    
 
 
 class QRWriter ():
-
-    _MSD:MonochromaticSquareDetector = MonochromaticSquareDetector()
     
     def __init__(self):
         self._integration_mode = "grid" # all_corners , top_left  ect...
@@ -76,7 +73,8 @@ class QRWriter ():
         print("SCALE")
         print(scale)
         if scale <= 1:
-             scale = 1
+            print("SCALE CANNOT BE INFERIOR TO 1 ")
+            scale = 1
         return scale
         ...
 
@@ -181,7 +179,7 @@ class QRWriter ():
                 result = self._combine_images(_under,_over,random_position["x"],random_position["y"]) 
 
         if _integration_mode == "fill":
-
+            ''''
             _under = PIL.ImageOps.grayscale(_under)
 
             MCSD = MonochromaticSquareDetector(self._under_path)
@@ -194,6 +192,10 @@ class QRWriter ():
                 x = int(pt["x"])
                 y = int(pt["y"])
                 result = self._hide_in(_under,_over,x,y)
+            
+            
+            '''
+
             
         return result
     

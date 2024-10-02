@@ -33,17 +33,16 @@ class ImageStamp :
         return image
     
     def set_qrcode_contrast(self,_v):
-        self._W.set_contrast(_v)
+        self._I.set_contrast(_v)
 
     def set_qrcode_scale(self,_v):
-        ...
-        #self._W.set_scale_factor(_v)
+        self._I.set_scale_factor(_v)
 
     def set_grid_division(self,_v):
-        self._W.set_grid_division(_v)
+        self._I.set_grid_division(_v)
     
     def set_qrcode_transparency(self,_v):
-        self._W.set_transparency(_v)
+        self._I.set_transparency(_v)
 
     def grayscale(self,_path:str)->str:
         return self._F.grayscale(_path)
