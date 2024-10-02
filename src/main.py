@@ -61,7 +61,7 @@ def main():
         image_stream =IS.apply_filter(image_stream,args.apply_filter)
 
     im = Image.open(image_stream)
-    im.show()
+    #im.show()
 
     if args.output_image:
         im.save(args.output_image)
