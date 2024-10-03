@@ -14,15 +14,29 @@ class QRWriter ():
     
     def __init__(self):
         self._integration_mode = "grid" # all_corners , top_left  ect...
+        self._blend_mode = "hide" # hide , over 
         self._under_path = ""
         self._over_path = ""
-        self._scale_factor = 0.0020
+        self._scale_factor = 0.0025
         self._contrast = 5
         self._transparency = 1
         self._rgb_over:Image = None
         self._rgb_under:Image = None
         self._grid_division:int = 2
         ...
+    def reset(self):
+        self._integration_mode = "grid" # all_corners , top_left  ect...
+        self._under_path = ""
+        self._over_path = ""
+        self._scale_factor = 0.0025
+        self._contrast = 5
+        self._transparency = 1
+        self._rgb_over:Image = None
+        self._rgb_under:Image = None
+        self._grid_division:int = 2        
+
+    def set_blend_mode(self,_bm:str):
+        self._blend_mode = _bm 
 
     def set_integration_mode(self,_im:str):
          self._integration_mode = str(_im)
@@ -90,6 +104,8 @@ class QRWriter ():
     def _generate_image_with_qr_code(self,_code,_scale:float=8)->Image:
         print("[QRWriter] code = "+_code)
         print("[QRWriter] scale "+str(_scale))
+        print("[QRWriter] contrast "+str(self._contrast))
+        print("[QRWriter] transparency "+str(self._transparency))
         qr = pyqrcode.create(_code)
         path = self._generate_qrcode_image_path(_code)
         print("[QRWriter] temp file = "+path)
@@ -116,6 +132,13 @@ class QRWriter ():
             return _under
         _under.paste(_over,(_x,_y),_mask)
         return _under
+    
+    def _blend(self,_under:Image,_over:Image,_x:int=0,_y:int=0):
+        if self._blend_mode=="hide":
+            return self._hide_in(_under,_over,_x,_y)
+        if self._blend_mode=="over":
+            return self._put_over(_under,_over,_x,_y)
+        return _under
 
     
     def _paste_qrcodes(self,_under:Image,_over:Image,_integration_mode:str)->Image:
@@ -134,22 +157,23 @@ class QRWriter ():
         if _integration_mode == "top_left":
                 y = 0 * y_pixel_padding
                 x = 0 * x_pixel_padding
-                self._combine_images(_under,_over,x,y) 
+                self._blend(_under,_over,x,y) 
 
         if _integration_mode == "top_right":
                 y = 0 * y_pixel_padding
                 x = 1 * x_pixel_padding
-                self._combine_images(_under,_over,x,y) 
+                self._blend(_under,_over,x,y) 
 
         if _integration_mode== "bottom_right":
                 y = 1 * y_pixel_padding
                 x = 1 * x_pixel_padding
-                self._combine_images(_under,_over,x,y) 
+                self._blend(_under,_over,x,y) 
 
         if _integration_mode == "bottom_left":
                 y = 1 * y_pixel_padding
                 x = 0 * x_pixel_padding
-                self._combine_images(_under,_over,x,y)  
+
+                self._blend(_under,_over,x,y)  
 
         if _integration_mode == "all_corners":
             margin = 20
@@ -157,26 +181,29 @@ class QRWriter ():
                 for j in range(2):
                     y = (j * y_pixel_padding-margin)+margin
                     x = (i * x_pixel_padding-margin)+margin
-                    result =self._combine_images(_under,_over,x,y) 
+                    result =self._blend(_under,_over,x,y) 
 
         if _integration_mode == "grid":
 
             grid_division = self._grid_division
-            column_width = int(x_pixel_padding/grid_division)
-            row_width = int(y_pixel_padding/grid_division)
+            margin = oW
+            final_width = x_pixel_padding-(margin*2)
+            final_height = y_pixel_padding-(margin*2)
+            column_width = int(final_width/grid_division)
+            row_width = int(final_height/grid_division)
             x=0
             y=0
             for i in range(grid_division+1):
-                y =row_width*i
+                y =(row_width*i)+margin
                 for j in range(grid_division+1):
-                    x = column_width*j
-                    result =self._hide_in(_under,_over,x,y)
+                    x = (column_width*j)+margin
+                    result =self._blend(_under,_over,x,y)
 
         if _integration_mode == "random":
 
             for i in range(30):
                 random_position = self._random_position_in_rect(x_pixel_padding,x_pixel_padding)
-                result = self._combine_images(_under,_over,random_position["x"],random_position["y"]) 
+                result = self._blend(_under,_over,random_position["x"],random_position["y"]) 
 
         if _integration_mode == "fill":
             ''''
@@ -198,6 +225,11 @@ class QRWriter ():
 
             
         return result
+    
+    def _put_over(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:
+        result = self._combine_images(_under,_over,_x,_y)
+        return result 
+    
     
     def _hide_in(self,_under:Image,_over:Image,_x:int=0,_y:int=0)->Image:
 
@@ -244,7 +276,7 @@ class QRWriter ():
     
     def _display_color(self,_value):
         gap = self._contrast
-        half_tone = 80
+        half_tone = 200
         new_color = _value
         if _value == 255:
               new_color = _value-gap

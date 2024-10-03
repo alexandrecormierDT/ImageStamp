@@ -8,20 +8,21 @@ def main():
     print("ImageStamp")
     parser = argparse.ArgumentParser(prog='ImageStamp',description='add qrcode to image')
     parser.add_argument('-read','--read',action='store_true') 
+    parser.add_argument('-find_qrcodes','--find_qrcodes',action='store_true') 
     parser.add_argument('-generate','--generate',action='store_true') 
     parser.add_argument('-combine','--combine',action='store_true') 
     parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument('-apply_filter','--apply_filter') 
-    parser.add_argument("-i","--image_source",action='append' ,required=True)
+    parser.add_argument("-i","--input",action='append' ,required=True)
     parser.add_argument("-c","--code")
     parser.add_argument("-ct","--contrast")
     parser.add_argument("-tr","--transparency")
     parser.add_argument("-sf","--scale_factor")
     parser.add_argument("-st","--strategy")
     parser.add_argument("-gd","--grid_division")
-    parser.add_argument("-o","--output_folder")
+    parser.add_argument("-o","--output_path")
     parser.add_argument("-oi","--output_image")
     parser.add_argument("-s","--scale")
     parser.add_argument("-im","--integration_mode",default="all_corners")
@@ -29,23 +30,27 @@ def main():
     args = parser.parse_args()
     
     IS = ImageStamp()
-    image_stream =args.image_source
+    input_stream =args.input
 
     if args.read:
-        data = IS.read(image_stream)
+        data = IS.read(input_stream)
+        return data
+    
+    if args.find_qrcodes and args.input and args.output_path:
+        data = IS.find_qrcodes(input_stream,args.output_path)
         return data
 
     if args.combine:
-        image_stream =IS.combine(image_stream)
+        input_stream =IS.combine(input_stream)
 
     if args.maximise:
-        image_stream =IS.maximise(image_stream)
+        input_stream =IS.maximise(input_stream)
 
-    if isinstance(image_stream,list):
-        image_stream = image_stream[0]
+    if isinstance(input_stream,list):
+        input_stream = input_stream[0]
         
     if args.add_text:
-        image_stream = IS.add_text(image_stream,args.add_text)
+        input_stream = IS.add_text(input_stream,args.add_text)
 
     if args.add_qrcode:
         code = args.add_qrcode
@@ -55,12 +60,13 @@ def main():
             integration_mode = args.integration_mode
         if args.strategy:
             strategy = args.strategy
-        image_stream =IS.add_qrcode(image_stream,code,integration_mode,strategy)
+        # put hidden qrcodes
+        input_stream =IS.add_qrcode(input_stream,code,integration_mode,strategy)
 
     if args.apply_filter:
-        image_stream =IS.apply_filter(image_stream,args.apply_filter)
+        input_stream =IS.apply_filter(input_stream,args.apply_filter)
 
-    im = Image.open(image_stream)
+    im = Image.open(input_stream)
     #im.show()
 
     if args.output_image:
@@ -68,7 +74,7 @@ def main():
 
     IS.clean_temp()
 
-    return image_stream
+    return input_stream
     
         
 if __name__=="__main__":

@@ -11,7 +11,7 @@ class QRIntegrator ():
     _max_trials = 30
     
     def __init__(self):
-        self._strategy = "optimaly_hidden"
+        self._strategy = "optimaly_hidden" # visible
         ...
 
     def set_strategy(self,_s:str):
@@ -35,10 +35,18 @@ class QRIntegrator ():
     def add_qrcode(self,_source_image:str,_code:str,_integration_mode:str="grid")->str:
         if self._strategy == "optimaly_hidden":
             return self._add_qrcode_optimaly_hidden(_source_image,_code,_integration_mode)
+        if self._strategy == "visible":
+            return self._add_qrcode_visible(_source_image,_code,_integration_mode)
+        return self._W.add_qrcode(_source_image,_code,_integration_mode)
+    
+    def _add_qrcode_visible(self,_source_image:str,_code:str,_integration_mode:str="grid")->str:
+        self._W.set_grid_division(1)
+        self._W.set_blend_mode("over")
         return self._W.add_qrcode(_source_image,_code,_integration_mode)
     
     def _add_qrcode_optimaly_hidden(self,_source_image:str,_code:str,_integration_mode:str="grid"):
 
+        self._W.reset()
         contrast = 5
         scale = 20
         code = _code
@@ -50,6 +58,7 @@ class QRIntegrator ():
 
         increment_table = {
             "contrast":int(100/max_trial),
+            "grid_division":0.3
         }
 
         image_stream =self._F.grayscale(_source_image)
@@ -60,7 +69,7 @@ class QRIntegrator ():
         self._W.set_transparency(transparency)
         self._W.set_contrast(contrast)
 
-        match_target = 5
+        match_target = 3
 
         for trial in range(0,max_trial):
 
@@ -69,8 +78,14 @@ class QRIntegrator ():
                 break
             print("QR CODE NOT VISIBLE -- TRIAL "+str(trial))
             contrast+=increment_table["contrast"]
+            grid_division+=round(increment_table["grid_division"])
+            self._W.set_grid_division(grid_division)
             self._W.set_contrast(contrast)
             image_stream =self._W.add_qrcode(original_image,code,integration_mode)
+
+        if match_target < 3:
+            #for safety we had realy visible qrcodes in the corners
+            return self._add_qrcode_visible(image_stream,_code,_integration_mode)
 
         return image_stream
 

@@ -6,7 +6,9 @@ from classes.ImageFilter import ImageFilter
 from classes.ImageEditor import ImageEditor
 from classes.Harmoniser import Harmoniser
 from classes.PathManager import PathManager
+from classes.VideoEditor import VideoEditor
 from PIL import Image,ImageOps,ImageChops
+import json
 
 import uuid
 import os
@@ -21,11 +23,13 @@ class ImageStamp :
     _T:TextWriter = TextWriter()
     _F:ImageFilter = ImageFilter()
     _E:ImageEditor = ImageEditor()
+    _V:VideoEditor = VideoEditor()
+
     def __init__(self):
         
         ...
 
-    def add_qrcode(self,_source:str,_code:str,_integration_mode:str="grid",_strategy:str="adaptive"):
+    def add_qrcode(self,_source:str,_code:str,_integration_mode:str="grid",_strategy:str="optimaly_hidden"):
         self._I.set_strategy(_strategy)
         image = self._I.add_qrcode(_source,_code,_integration_mode)
         if image == "":
@@ -49,6 +53,38 @@ class ImageStamp :
     
     def read(self,_path:str)->str:
         return self._R.read(_path)
+    
+    def find_qrcodes(self,_path:str,_output:str="")->dict:
+        frames = self._V.extract_frames(_path[0])
+        skip_rate = 3
+        index = 0
+        frame_table = {}
+        code_table = {}
+        for frame_path in frames:
+            index+=1
+            if index % skip_rate !=0:
+                continue
+            print(frame_path)
+            found = self._R.find(frame_path)
+            if len(found)==0:
+                continue
+            data = [item.data.decode('utf-8') for item in found]
+            #unique codes 
+            data = list(set(data))
+            first_code = data[0]
+            frame_table[str(index)] = data
+            if first_code not in code_table.keys():
+                code_table[first_code] = []
+            code_table[first_code].append(index)
+            print(f" FRAME {index} === {data}")
+        result = {
+            "frame_table":frame_table,
+            "code_table":code_table
+        }
+
+        with open(_output,"w") as file:
+            file.write(json.dumps(result))
+        return result
     
     def evaluate(self,_path:str,_minimum_qrcodes:int=2)->dict:
         return self._R.evaluate(_path,_minimum_qrcodes)

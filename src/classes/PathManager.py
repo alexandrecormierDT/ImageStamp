@@ -18,8 +18,20 @@ class PathManager():
         self._temp_paths.append(path)
         return path
     
+    def create_temp_folder(self)->str:
+        return "P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/test/output/test"
+        serial = self._get_serial()
+        name = f"{self._session_id}_{serial}_{self._index}"
+        path = f"{os.getenv('TEMP')}\{name}"
+        self._index+=1
+        os.mkdir(path)
+        return path        
+    
     def _get_serial(self):
         return str(uuid.uuid4())[-8:]
+    
+    def add_as_temp_path(self,_path:str):
+        self._temp_paths.append(_path)
     
     def clean_temp(self):
         print("Temp Cleanup")

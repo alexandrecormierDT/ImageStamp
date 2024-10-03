@@ -13,18 +13,24 @@ class QRReader():
     
     def __init__(self):
 
+
         ...
 
     def find(self,_path:str)->list:
 
         #split the image in sub parts and look fo qrcodes
         split_division = 2
-        split = self._IE.split(_path,split_division)
+        split = []
         split.append(_path)
+        split.extend(self._IE.split(_path,split_division))
         split.extend(self._IE.split(_path,split_division+1))
-
         for image_part in split:
             split_data = self.read(image_part)
+            if len(split_data)>0:
+                return split_data
+            # test on contrasted image
+            contrasted_image = self._IF.increase_contrast(image_part,5)
+            split_data = self.read(contrasted_image)
             if len(split_data)>0:
                 return split_data
             # test on inverted image
@@ -32,14 +38,18 @@ class QRReader():
             split_data=self.read(inverted_image)
             if len(split_data)>0:
                 return split_data
-            
         return []
+
         
     def read(self,_path)->list:
         # can you see a qrcode ? 
-        return self._decode_image(_path)
+        qrcodes = self._decode_image(_path)
+        return qrcodes
     
     def evaluate(self,_path:str,_min_qrcodes:int=3)->bool:
+        found = self.find(_path)
+        print(len(found))
+        return len(found) >= _min_qrcodes
 
         # check if the image have some minimum detectable qrcodes even if it's croped
 
@@ -68,18 +78,11 @@ class QRReader():
         
         return True
         
-    def _decode_image(self,_path):
-        data = decode(Image.open(_path))
-        return data
-    
-    def _decode_video(self,_path:str):
-
+    def _decode_image(self,_path)->list:
         data = decode(Image.open(_path))
         return data
 
 
-    
-        
 
 
 

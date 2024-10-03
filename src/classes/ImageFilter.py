@@ -30,6 +30,21 @@ class ImageFilter():
         return temp
         ...
 
+    def increase_contrast(self,_path:str,_value:1.5)->str:
+
+        from PIL import Image, ImageEnhance
+
+        # Read the image
+        im = Image.open(_path)
+
+        # Image brightness enhancer
+        enhancer = ImageEnhance.Contrast(im)
+        path = self._PM.get_temp_image_path()
+
+        factor = _value #increase contrast
+        im_output = enhancer.enhance(factor)
+        im_output.save(path)
+        return path
 
     def grayscale(self,_path:str)->str:
         image = Image.open(_path).convert("RGB")
