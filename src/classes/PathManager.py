@@ -19,7 +19,6 @@ class PathManager():
         return path
     
     def create_temp_folder(self)->str:
-        return "P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/test/output/test"
         serial = self._get_serial()
         name = f"{self._session_id}_{serial}_{self._index}"
         path = f"{os.getenv('TEMP')}\{name}"
