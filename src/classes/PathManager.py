@@ -18,6 +18,14 @@ class PathManager():
         self._temp_paths.append(path)
         return path
     
+    def get_temp_txt_path(self):
+        serial = self._get_serial()
+        name = f"{self._session_id}_{serial}_{self._index}"
+        path = f"{os.getenv('TEMP')}\{name}.txt"
+        self._index+=1
+        self._temp_paths.append(path)
+        return path
+    
     def create_temp_folder(self)->str:
         serial = self._get_serial()
         name = f"{self._session_id}_{serial}_{self._index}"

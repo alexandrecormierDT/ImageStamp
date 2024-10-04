@@ -56,7 +56,7 @@ class ImageStamp :
     
     def find_qrcodes(self,_path:str,_output:str="")->dict:
         frames = self._V.extract_frames(_path[0])
-        skip_rate = 3
+        skip_rate = 1
         index = 0
         frame_table = {}
         code_table = {}
@@ -78,6 +78,7 @@ class ImageStamp :
             code_table[first_code].append(index)
             print(f" FRAME {index} === {data}")
         result = {
+            "input_path":_path,
             "frame_table":frame_table,
             "code_table":code_table
         }
