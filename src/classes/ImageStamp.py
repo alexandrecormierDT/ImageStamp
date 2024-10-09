@@ -60,6 +60,7 @@ class ImageStamp :
         index = 0
         frame_table = {}
         code_table = {}
+        search_list = []
         for frame_path in frames:
             index+=1
             if index % skip_rate !=0:
@@ -75,13 +76,14 @@ class ImageStamp :
             frame_table[str(index)] = data
             if first_code not in code_table.keys():
                 code_table[first_code] = []
+                search_list.append(first_code)
             code_table[first_code].append(index)
             print(f" FRAME {index} === {data}")
         result = {
             "input_path":_path,
             "frame_table":frame_table,
             "code_table":code_table,
-            "search":code_table.keys(), # will be used to cominucate with sgrequest
+            "search":search_list, # will be used to cominucate with sgrequest
             "result":{}
         }
 
