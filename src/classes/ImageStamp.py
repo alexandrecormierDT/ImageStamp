@@ -80,7 +80,9 @@ class ImageStamp :
         result = {
             "input_path":_path,
             "frame_table":frame_table,
-            "code_table":code_table
+            "code_table":code_table,
+            "search":code_table.keys(), # will be used to cominucate with sgrequest
+            "result":{}
         }
 
         with open(_output,"w") as file:
