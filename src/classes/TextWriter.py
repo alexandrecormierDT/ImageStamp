@@ -48,6 +48,26 @@ class TextWriter():
         if _color_name in table.keys():
             return table[_color_name]
         return table["white"]
+    
+        
+    def add_watermark(self,_path:str,_text:str)->str:
+        im = Image.open(_path)
+        width, height = im.size
+        draw = ImageDraw.Draw(im)
+        font_size = round(height/40)
+        font = ImageFont.truetype("arial.ttf",font_size)
+        padding = round(font_size/3)
+        position = (0,0)#(padding+5,padding+5)
+        left, top, right, bottom = draw.textbbox(position, _text, font=font)
+        text_h = ((bottom-top)+padding*2)*2
+        image_with_text = Image.new("RGBA", (width, height+text_h))
+        draw = ImageDraw.Draw(image_with_text)
+        image_with_text.paste(im, (0,0))
+        draw.rectangle((left-padding, top-padding, right+padding, bottom+round(padding*0.8)), fill="white")
+        draw.text(position, _text, self._text_color, font=font)
+        temp = self._generate_tmp_path()+".png"
+        image_with_text.save(temp)
+        return temp        
         
     def add_text(self,_path:str,_text:str)->str:
 

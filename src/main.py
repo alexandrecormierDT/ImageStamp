@@ -13,6 +13,7 @@ def main():
     parser.add_argument('-combine','--combine',action='store_true') 
     parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
+    parser.add_argument('-add_watermark','--add_watermark') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument('-apply_filter','--apply_filter') 
     parser.add_argument("-i","--input",action='append' ,required=True)
@@ -51,6 +52,9 @@ def main():
         
     if args.add_text:
         input_stream = IS.add_text(input_stream,args.add_text)
+
+    if args.add_watermark:
+        input_stream = IS.add_watermark(input_stream,args.add_watermark)
 
     if args.add_qrcode:
         code = args.add_qrcode

@@ -110,6 +110,10 @@ class ImageStamp :
         self._T.set_text_color("black")
         return self._T.add_text(_path,_text)
     
+    def add_watermark(self,_path:str,_text:str)->str:
+        self._T.set_text_color("gray")
+        return self._T.add_watermark(_path,_text)
+    
     def apply_filter(self,_path:str,_f:str)->str:
         self._F.set_filter(_f)
         return self._F.apply_filter(_path)
