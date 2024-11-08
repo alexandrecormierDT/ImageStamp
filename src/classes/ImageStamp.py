@@ -51,8 +51,8 @@ class ImageStamp :
     def grayscale(self,_path:str)->str:
         return self._F.grayscale(_path)
     
-    def read(self,_path:str)->str:
-        return self._R.read(_path)
+    def read(self,_paths:list)->str:
+        return self._R.read(_paths[0])
     
     def find_qrcodes(self,_path:str,_output:str="")->dict:
         frames = self._V.extract_frames(_path[0])

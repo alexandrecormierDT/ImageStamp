@@ -75,6 +75,8 @@ def main():
 
     if args.output_image:
         im.save(args.output_image)
+    else:
+        im.save(args.input[0])
 
     IS.clean_temp()
 
@@ -97,6 +99,7 @@ if __name__=="__main__":
 
     
     python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -generate -i "P:/projects/billy/library/boxanim/assets/Character/ch_billy/png/ch_billy.png" -c 1897 -o "P:/projects/riv/temp_no_backup/image_stamp"
+    python P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/src/main.py -i P:/projects/testa/users/a.cormier/test/image_stamp/my_image.png -add_watermark "this is a watemark"
     
     
     '''
