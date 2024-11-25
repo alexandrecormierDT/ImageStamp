@@ -69,7 +69,7 @@ class Combiner():
         if _total_width >= max_auhorised_width:
             print("[Combiner] WARNING ! final width is too high , resizing images ! ")
             conformed_paths = []
-            forced_equal_width = int((max_auhorised_width/len(_paths))*0.9)
+            forced_equal_width = int((max_auhorised_width/len(_paths))*0.95)
             for path in _paths:
                 resized_image = self._IE.resize_by_width(path,forced_equal_width)
                 conformed_paths.append(resized_image)
@@ -80,6 +80,7 @@ class Combiner():
             if self._IC.check(path)==None:
                 return 
             
+        # original width sum  and max heigth 
         images = [Image.open(x) for x in _paths]
         widths, heights = zip(*(i.size for i in images))
         total_width = sum(widths)+(_padding*(len(_paths)+1))
@@ -88,6 +89,8 @@ class Combiner():
         #width check
         conformed_paths = self._conform_images_width(_paths,total_width)
         conformed_images = [Image.open(x) for x in conformed_paths]
+
+        # conformed width sum  and max heigth 
         widths, heights = zip(*(i.size for i in conformed_images))
         total_width = sum(widths)+(_padding*(len(_paths)+1))
         max_height = max(heights)
