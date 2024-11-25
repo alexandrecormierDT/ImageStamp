@@ -2,6 +2,7 @@ from classes.QRReader import QRReader
 from classes.QRIntegrator import QRIntegrator
 from classes.Combiner import Combiner
 from classes.TextWriter import TextWriter
+from classes.ImageChecker import ImageChecker
 from classes.ImageFilter import ImageFilter
 from classes.ImageEditor import ImageEditor
 from classes.Harmoniser import Harmoniser
@@ -24,10 +25,7 @@ class ImageStamp :
     _F:ImageFilter = ImageFilter()
     _E:ImageEditor = ImageEditor()
     _V:VideoEditor = VideoEditor()
-
-    def __init__(self):
-        
-        ...
+    _IC:ImageChecker = ImageChecker()
 
     def add_qrcode(self,_source:str,_code:str,_integration_mode:str="grid",_strategy:str="optimaly_hidden"):
         self._I.set_strategy(_strategy)
@@ -55,12 +53,14 @@ class ImageStamp :
         return self._R.read(_paths[0])
     
     def find_qrcodes(self,_path:str,_output:str="")->dict:
+
         frames = self._V.extract_frames(_path[0])
         skip_rate = 1
         index = 0
         frame_table = {}
         code_table = {}
         search_list = []
+
         for frame_path in frames:
             index+=1
             if index % skip_rate !=0:
@@ -79,6 +79,7 @@ class ImageStamp :
                 search_list.append(first_code)
             code_table[first_code].append(index)
             print(f" FRAME {index} === {data}")
+
         result = {
             "input_path":_path,
             "frame_table":frame_table,
@@ -92,39 +93,59 @@ class ImageStamp :
         return result
     
     def evaluate(self,_path:str,_minimum_qrcodes:int=2)->dict:
+        if _path is None:
+            return ""
         return self._R.evaluate(_path,_minimum_qrcodes)
     
     def invert(self,_path:str)->str:
+        if _path is None:
+            return ""
         return self._F.invert(_path)
     
     def combine(self,_paths:list,_axe:str="H")->str:
+        if _paths is None:
+            return ""
         self._C.set_axe(_axe)
         return self._C.combine(_paths)
     
     def maximise(self,_paths:list,_axe:str="H")->str:
+        if _paths is None:
+            return ""
         self._C.set_axe(_axe)
         return self._H.maximise(_paths)
     
     def add_text(self,_path:str,_text:str)->str:
+        if _path is None:
+            return ""
         self._T.set_background_color("white")
         self._T.set_text_color("black")
         return self._T.add_text(_path,_text)
     
     def add_watermark(self,_path:str,_text:str)->str:
+        if _path is None:
+            return ""
+        if self._IC.check(_path) is None:
+            return ""
         self._T.set_text_color("gray")
         return self._T.add_watermark(_path,_text)
     
     def apply_filter(self,_path:str,_f:str)->str:
+        if _path is None:
+            return ""
         self._F.set_filter(_f)
         return self._F.apply_filter(_path)
     
     def crop(self,_path:str,_x1:int=0,_x2:int=0,_y1:int=0,_y2:int=0)->Image:
+        if _path is None:
+            return ""
         return self._E.crop(_path,_x1,_x2,_y1,_y2)
     
     def _get_temp_image_path(self)->str:
         return self._PM.get_temp_image_path()
     
     def split(self,_path:str,_value:int=2)->list:
+        if _path is None:
+            return ""
         return self._E.split(_path,_value)
     
     def clean_temp(self):

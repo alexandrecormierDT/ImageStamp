@@ -2,8 +2,13 @@ from PIL import Image
 import os
 import shutil
 import uuid
+from classes.ImageChecker import ImageChecker
+from classes.ImageEditor import ImageEditor
 
 class Combiner():
+
+    _IC = ImageChecker()
+    _IE:ImageEditor = ImageEditor()
     
     def __init__(self):
         self._axe= "H"
@@ -16,6 +21,8 @@ class Combiner():
         if self._crop:
             images = []
             for path in _paths:
+                if self._IC.check(path)==None:
+                    return 
                 images.append(self._crop_to_bbox(path))
         temp = self._generate_tmp_path()+".png"
         if self._axe == "H":
@@ -33,6 +40,9 @@ class Combiner():
         return self
     
     def _combine_images_verticaly(self,_paths,_output,_padding=100):
+        for path in _paths:
+            if self._IC.check(path) is None:
+                return 
         images = [Image.open(x) for x in _paths]
         widths, heights = zip(*(i.size for i in images))
 
@@ -40,6 +50,7 @@ class Combiner():
         max_width = max(widths)
 
         new_im = Image.new('RGBA', (max_width,total_height))
+        path = self._IE.resize_by_width(self._IC.get_max_width())
 
         x_offset = 0
         y_offset = _padding
@@ -51,19 +62,43 @@ class Combiner():
         new_im.save(_output)
         return new_im
     
+    def _conform_images_width(self,_paths,_total_width)->list:
+        # check if the combined image is not too hudge (will cause errors on PIL side)
+        max_auhorised_width = self._IC.get_max_width()
+        conformed_paths = _paths
+        if _total_width >= max_auhorised_width:
+            print("[Combiner] WARNING ! final width is too high , resizing images ! ")
+            conformed_paths = []
+            forced_equal_width = int((max_auhorised_width/len(_paths))*0.9)
+            for path in _paths:
+                resized_image = self._IE.resize_by_width(path,forced_equal_width)
+                conformed_paths.append(resized_image)
+        return conformed_paths
+    
     def _combine_images_horizontaly(self,_paths,_output,_padding=100):
+        for path in _paths:
+            if self._IC.check(path)==None:
+                return 
+            
         images = [Image.open(x) for x in _paths]
         widths, heights = zip(*(i.size for i in images))
+        total_width = sum(widths)+(_padding*(len(_paths)+1))
+        max_height = max(heights)
 
+        #width check
+        conformed_paths = self._conform_images_width(_paths,total_width)
+        conformed_images = [Image.open(x) for x in conformed_paths]
+        widths, heights = zip(*(i.size for i in conformed_images))
         total_width = sum(widths)+(_padding*(len(_paths)+1))
         max_height = max(heights)
 
         new_im = Image.new('RGBA', (total_width, max_height))
+        max_height = max(heights)
 
         x_offset =_padding
         y_offset = 0
 
-        for im in images:
+        for im in conformed_images:
             new_im.paste(im, (x_offset,y_offset))
             x_offset += im.size[0]+_padding
 

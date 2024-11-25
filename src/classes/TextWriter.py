@@ -2,8 +2,11 @@ from PIL import Image,ImageDraw,ImageFont
 import os
 import shutil
 import uuid
+from classes.ImageChecker import ImageChecker
 
 class TextWriter():
+
+    _IC = ImageChecker()
     
     def __init__(self):
         self._text_color = self._get_color("white")
@@ -55,6 +58,9 @@ class TextWriter():
         return temp        
         
     def add_text(self,_path:str,_text:str)->str:
+
+        if self._IC.check(_path)==None:
+            return ""
 
         im = Image.open(_path)
         width, height = im.size
