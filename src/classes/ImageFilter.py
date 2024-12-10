@@ -49,7 +49,7 @@ class ImageFilter():
         im_output.save(path)
         return path
     
-    def _open_rgb_image(_path)->Image:
+    def _open_rgb_image(self,_path)->Image:
         try:
             image = Image.open(_path).convert("RGB")
             return image
