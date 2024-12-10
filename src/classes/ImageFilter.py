@@ -6,6 +6,7 @@ from PIL import Image,ImageOps,ImageChops
 import os
 import uuid
 from classes.PathManager import PathManager
+from PIL import Image, ImageEnhance
 
 class ImageFilter():
 
@@ -22,39 +23,54 @@ class ImageFilter():
 
     def apply_filter(self,_path:str)->str:
 
-        image_file = Image.open(_path) # open colour image
+        # Read the image
+        image = self._open_rgb_image(_path)
+        if image is None:
+            return _path
         if self._current_filter == "BW":
-            image_file = image_file.convert('L') # convert image to black and white
+            image = image.convert('L') # convert image to black and white
         temp = self._generate_tmp_path()+".png"
-        image_file.save(temp)
+        image.save(temp)
         return temp
         ...
 
     def increase_contrast(self,_path:str,_value:1.5)->str:
 
-        from PIL import Image, ImageEnhance
-
         # Read the image
-        im = Image.open(_path)
-
+        image = self._open_rgb_image(_path)
+        if image is None:
+            return _path
         # Image brightness enhancer
-        enhancer = ImageEnhance.Contrast(im)
+        enhancer = ImageEnhance.Contrast(image)
         path = self._PM.get_temp_image_path()
 
         factor = _value #increase contrast
         im_output = enhancer.enhance(factor)
         im_output.save(path)
         return path
+    
+    def _open_rgb_image(_path)->Image:
+        try:
+            image = Image.open(_path).convert("RGB")
+            return image
+        except():
+            print("ERROR can't parse image path "+_path)
+            return None   
 
     def grayscale(self,_path:str)->str:
-        image = Image.open(_path).convert("RGB")
+        image = self._open_rgb_image(_path)
+        if image is None:
+            return _path
         grayscale = ImageOps.grayscale(image)
         path = self._PM.get_temp_image_path()
         grayscale.save(path)
         return path
     
     def invert(self,_path:str)->str:
-        inverted_image =ImageChops.invert(Image.open(_path).convert("RGB"))
+        image = self._open_rgb_image(_path)
+        if image is None:
+            return _path
+        inverted_image =ImageChops.invert(image)
         path = self._PM.get_temp_image_path()
         inverted_image.save(path)
         return path
