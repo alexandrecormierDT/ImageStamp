@@ -16,6 +16,7 @@ def main():
     parser.add_argument('-check_image','--check_image',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_watermark','--add_watermark') 
+    parser.add_argument('-add_overlay','--add_overlay') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument('-apply_filter','--apply_filter') 
     parser.add_argument("-i","--input",action='append' ,required=True)
@@ -27,6 +28,7 @@ def main():
     parser.add_argument("-gd","--grid_division")
     parser.add_argument("-o","--output_path")
     parser.add_argument("-oi","--output_image")
+    parser.add_argument("-oj","--overlay_json")
     parser.add_argument("-s","--scale")
     parser.add_argument("-im","--integration_mode",default="all_corners")
 
@@ -37,14 +39,16 @@ def main():
 
     input_stream =args.input
 
-
-
     if args.read:
         data = IS.read(input_stream)
         return data
     
     if args.find_qrcodes and args.input and args.output_path:
         data = IS.find_qrcodes(input_stream,args.output_path)
+        return data
+    
+    if args.add_overlay and args.input and args.overlay_json and args.output_path:
+        data = IS.add_overlay(input_stream,args.overlay_json,args.output_path)
         return data
 
     if args.check_image:

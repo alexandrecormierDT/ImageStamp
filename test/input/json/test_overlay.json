@@ -1,0 +1,35 @@
+{
+    "elements":[
+        {
+            "type":"text",
+            "content":"persistant_text",
+            "color":"white",
+            "bg_color":"black",
+            "placement":"top_left"
+        },
+        {
+            "type":"text",
+            "content":"timed_text_10-20",
+            "placement":"bottom_left",
+            "color":"black",
+            "bg_color":"white",
+            "start_frame":10,
+            "end_frame":20
+        },
+        {
+            "type":"image",
+            "path":"image/path"
+        },
+        {
+            "type":"image",
+            "path":"image/path",
+            "start_frame":20,
+            "end_frame":30
+        },
+        {
+            "type":"time_code",
+            "frame_rate":25,
+            "placement":"bottom_rigth"
+        }
+    ]
+}

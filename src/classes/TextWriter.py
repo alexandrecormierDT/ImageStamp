@@ -28,11 +28,14 @@ class TextWriter():
             "white":(255, 255, 255),
             "black":(0, 0, 0),
             "gray":(100, 100, 100),
-            "red":(255, 0, 0),
+            "red":(255, 0, 0)
         }
         if _color_name in table.keys():
             return table[_color_name]
         return table["white"]
+    
+    def _filter_text(self,_text:str)->str:
+        return _text
     
         
     def add_watermark(self,_path:str,_text:str)->str:
@@ -49,9 +52,12 @@ class TextWriter():
         left, top, right, bottom = draw.textbbox(position, _text, font=font)
         draw = ImageDraw.Draw(im)
 
-        # draw rectancle behind the text
-        draw.rectangle((left-padding, top-padding, right+padding, bottom+round(padding*0.8)), fill="white")
-        draw.text(position, _text, self._text_color, font=font)
+        try:
+            # draw rectancle behind the text
+            draw.rectangle((left-padding, top-padding, right+padding, bottom+round(padding*0.8)), fill="white")
+            draw.text(position, _text, self._text_color, font=font)
+        except:
+            print(f"[TextWriter] Exeption occured ,  problem with adding text to {_path}")
 
         temp = self._generate_tmp_path()+".png"
         im.save(temp)

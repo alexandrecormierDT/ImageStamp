@@ -150,6 +150,11 @@ class ImageStamp :
     
     def clean_temp(self):
         return self._PM.clean_temp()
+    
+    def add_overlay(self,_path:str,_overlay_json:str,_output:str):
+        # read a json and add text and images on each frames 
+        ...
+
 
     
     
