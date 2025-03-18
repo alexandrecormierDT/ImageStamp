@@ -14,6 +14,7 @@ def main():
     parser.add_argument('-combine','--combine',action='store_true') 
     parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-check_image','--check_image',action='store_true') 
+    parser.add_argument('-create_diff_map','--create_diff_map',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_watermark','--add_watermark') 
     parser.add_argument('-add_overlay','--add_overlay') 
@@ -61,12 +62,16 @@ def main():
     if args.maximise:
         input_stream =IC.check(IS.maximise(input_stream))
 
+    if args.create_diff_map:
+        input_stream =IS.create_diff_map(input_stream[0],input_stream[1])
+
+    # process on single images : 
+
     if isinstance(input_stream,list):
         input_stream = input_stream[0]
         
     if args.add_text:
         input_stream = IC.check(IS.add_text(input_stream,args.add_text))
-
 
     if args.add_watermark:
         input_stream = IC.check(IS.add_watermark(input_stream,args.add_watermark))

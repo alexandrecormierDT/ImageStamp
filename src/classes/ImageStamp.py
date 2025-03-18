@@ -135,6 +135,13 @@ class ImageStamp :
         self._F.set_filter(_f)
         return self._F.apply_filter(_path)
     
+    def create_diff_map(self,_image_A:str,_image_B:str)->str:
+        if _image_A is None:
+            return ""
+        if _image_B is None:
+            return ""
+        return self._F.create_diff_map(_image_A,_image_B)
+    
     def crop(self,_path:str,_x1:int=0,_x2:int=0,_y1:int=0,_y2:int=0)->Image:
         if _path is None:
             return ""

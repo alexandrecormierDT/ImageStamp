@@ -7,6 +7,7 @@ import os
 import uuid
 from classes.PathManager import PathManager
 from PIL import Image, ImageEnhance
+from PIL import ImageChops
 
 class ImageFilter():
 
@@ -31,6 +32,20 @@ class ImageFilter():
             image = image.convert('L') # convert image to black and white
         temp = self._generate_tmp_path()+".png"
         image.save(temp)
+        return temp
+        ...
+
+    def create_diff_map(self,_path_A:str,_path_B:str)->str:
+
+        # Read the image
+        image_A = self._open_rgb_image(_path_A)
+        image_B = self._open_rgb_image(_path_B)
+        diff_img = ImageChops.difference(image_A, image_B)
+ 
+        if diff_img.getbbox():
+            diff_img.show()
+        temp = self._generate_tmp_path()+".png"
+        diff_img.save(temp)
         return temp
         ...
 
