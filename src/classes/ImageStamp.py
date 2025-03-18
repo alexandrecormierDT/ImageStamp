@@ -140,6 +140,10 @@ class ImageStamp :
             return ""
         if _image_B is None:
             return ""
+        if os.path.exists(_image_A)==False:
+            return ""
+        if os.path.exists(_image_B)==False:
+            return ""
         return self._F.create_diff_map(_image_A,_image_B)
     
     def crop(self,_path:str,_x1:int=0,_x2:int=0,_y1:int=0,_y2:int=0)->Image:
