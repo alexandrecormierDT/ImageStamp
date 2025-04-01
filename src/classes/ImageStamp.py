@@ -135,7 +135,6 @@ class ImageStamp :
         if _path is None:
             return ""
         text = os.path.basename(_path).split(".")[0]
-        print(text)
         return self._T.add_text(_path,text)
     
     def apply_filter(self,_path:str,_f:str)->str:
