@@ -18,6 +18,10 @@ class ImageChecker():
         args = [self._image_magick_path,"identify",_path]
         result =subprocess.run(args, stdout=subprocess.PIPE)
         string = result.stdout.decode('utf-8')
+
+        if self.check_string(string)==False:
+            return {}
+
         # PNG image data, 782 x 602, 8-bit/color RGBA, non-interlaced
         width,heigth = self._get_resolution(string)
 
@@ -29,6 +33,13 @@ class ImageChecker():
             "image_format":self._get_image_format(string),
             "nb_pixels":int(width)*int(heigth)
         }   
+    
+    def check_string(self,string)->bool:
+        if "image data" not in string:
+            return False
+        if "x" not in string:
+            return False
+        return True
 
     def get_max_width(self)->int:
         return self._max_width
