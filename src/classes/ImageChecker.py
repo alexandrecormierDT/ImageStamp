@@ -2,6 +2,13 @@ import os
 import re
 import subprocess
 
+
+'''
+
+P:/pipeline/dev/a.cormier/core/decorators/image_stamp/repos/ImageStamp/imagestamp.bat -add_filename_watermark -i P:/projects/testa/users/a.cormier/export_taggedframes
+
+'''
+
 class ImageChecker():
 
     _max_nb_of_pixels:int = 178956970
@@ -18,8 +25,8 @@ class ImageChecker():
         args = [self._image_magick_path,"identify",_path]
         result =subprocess.run(args, stdout=subprocess.PIPE)
         string = result.stdout.decode('utf-8')
-
         if self.check_string(string)==False:
+            print(f"[ImageChecker] probleme with imagick output ({string})")
             return {}
 
         # PNG image data, 782 x 602, 8-bit/color RGBA, non-interlaced
@@ -35,10 +42,16 @@ class ImageChecker():
         }   
     
     def check_string(self,string)->bool:
-        if "image data" not in string:
-            return False
         if "x" not in string:
             return False
+        if "TGA" in string:
+            return True
+        if "sRGB" in string:
+            return True
+        if "PNG" in string:
+            return True
+        if "JPEG" in string:
+            return True
         return True
 
     def get_max_width(self)->int:
@@ -84,6 +97,7 @@ class ImageChecker():
         print(f"[ImageChecker] {_path} ")
         print(f"[ImageChecker] {infos} ")
         if "nb_pixels" not in infos.keys():
+            print(f"[ImageChecker] ERROR image infos are not complete ")            
             return False
         nb_pixels = infos["nb_pixels"]
         width = infos["nb_pixels"]

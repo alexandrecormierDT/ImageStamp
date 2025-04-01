@@ -131,7 +131,7 @@ class ImageStamp :
 
     
     def add_filename_watermark(self,_path:str)->str:
-        print("[ImageStamp]add_filename_watermark")
+        print("[ImageStamp] add_filename_watermark")
         if _path is None:
             return ""
         text = os.path.basename(_path).split(".")[0]
