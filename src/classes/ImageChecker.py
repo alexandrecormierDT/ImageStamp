@@ -83,6 +83,8 @@ class ImageChecker():
         infos = self._get_image_infos(_path)
         print(f"[ImageChecker] {_path} ")
         print(f"[ImageChecker] {infos} ")
+        if "nb_pixels" not in infos.keys():
+            return False
         nb_pixels = infos["nb_pixels"]
         width = infos["nb_pixels"]
         heigth = infos["nb_pixels"]
