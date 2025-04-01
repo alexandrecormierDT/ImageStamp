@@ -13,6 +13,8 @@ class ImageChecker():
         ...
 
     def _get_image_infos(self,_path:str)->dict:
+        if _path is None:
+            return {}
         args = [self._image_magick_path,"identify",_path]
         result =subprocess.run(args, stdout=subprocess.PIPE)
         string = result.stdout.decode('utf-8')
