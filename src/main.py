@@ -104,7 +104,7 @@ def process_img(_path,args)->Image:
         input_stream =IS.create_diff_map(input_stream[0],input_stream[1]) # not working 
 
     if args.add_filename_watermark:
-        input_stream = IC.check(IS.add_filename_watermark(input_stream))
+        input_stream = IS.add_filename_watermark(input_stream)
         
     if args.add_text:
         input_stream = IC.check(IS.add_text(input_stream,args.add_text))
