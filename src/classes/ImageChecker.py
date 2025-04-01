@@ -44,7 +44,7 @@ class ImageChecker():
     def _get_bitdepth(self,_magic_string:str)->str:
         result = re.findall('(\d{1,2})-bit', _magic_string)
         if len(result)==0:
-            return ""
+            return 0
         return result[0]
     
     def _get_resolution(self,_magic_string:str)->tuple:
