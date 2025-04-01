@@ -128,6 +128,17 @@ class ImageStamp :
             return ""
         self._T.set_text_color("gray")
         return self._T.add_watermark(_path,_text)
+
+    
+    def add_filename_watermark(self,_path:str)->str:
+        print("[ImageStamp]add_filename_watermark")
+        if _path is None:
+            return ""
+        if self._IC.check(_path) is None:
+            return ""
+        text = os.path.basename(_path).split(".")[0]
+        print(text)
+        return self._T.add_text(_path,text)
     
     def apply_filter(self,_path:str,_f:str)->str:
         if _path is None:

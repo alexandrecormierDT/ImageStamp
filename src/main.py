@@ -3,6 +3,7 @@ sys.path.insert(0,'P:/pipeline/extra_scripts/python_include')
 from classes.ImageStamp import ImageStamp
 from classes.ImageChecker import ImageChecker
 from PIL import Image
+import os
 import argparse
     
 def main():
@@ -15,6 +16,7 @@ def main():
     parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-check_image','--check_image',action='store_true') 
     parser.add_argument('-create_diff_map','--create_diff_map',action='store_true') 
+    parser.add_argument('-add_filename_watermark','--add_filename_watermark',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_watermark','--add_watermark') 
     parser.add_argument('-add_overlay','--add_overlay') 
@@ -34,11 +36,47 @@ def main():
     parser.add_argument("-im","--integration_mode",default="all_corners")
 
     args = parser.parse_args()
+    input_stream =args.input
+    treated_img = []
+
+    '''
+        do we treat multiple files ? a folder's content ? a single ile ? 
+    '''
+    if isinstance(input_stream,list) and len(input_stream)>1:
+        print("[Main] treat multiple file ")
+        treated_img.append(process_img(input_stream,args))
+        return treated_img
+
+    input_stream = input_stream[0]
+    if os.path.isdir(input_stream):
+        print("[Main] treat folder ")
+        for path in get_folder_images(input_stream):
+            print("[Main] treat file "+path)
+            treated_img.append(process_img(path,args))
+    else:
+        print("[Main] treat single file "+input_stream)
+        treated_img.append(process_img(input_stream,args))
+    return treated_img
+
+def get_folder_images(_folder_path:str)->list:
+    files = []
+    for file in os.listdir(_folder_path):      
+        extension = file.split(".")[-1]
+        if extension not in ["png","tga","jpg","dpx"]:
+            continue
+        files.append(_folder_path+"/"+file)  
+    return files
+    
+
+def process_img(_path,args)->Image:
     
     IS = ImageStamp()
     IC = ImageChecker()
 
-    input_stream =args.input
+    source = _path
+    input_stream =_path
+
+    print(source)
 
     if args.read:
         data = IS.read(input_stream)
@@ -63,12 +101,10 @@ def main():
         input_stream =IC.check(IS.maximise(input_stream))
 
     if args.create_diff_map:
-        input_stream =IS.create_diff_map(input_stream[0],input_stream[1])
+        input_stream =IS.create_diff_map(input_stream[0],input_stream[1]) # not working 
 
-    # process on single images : 
-
-    if isinstance(input_stream,list):
-        input_stream = input_stream[0]
+    if args.add_filename_watermark:
+        input_stream = IC.check(IS.add_filename_watermark(input_stream))
         
     if args.add_text:
         input_stream = IC.check(IS.add_text(input_stream,args.add_text))
@@ -95,12 +131,13 @@ def main():
         sys.exit(0)
 
     im = Image.open(input_stream)
-    #im.show()
 
     if args.output_image:
         im.save(args.output_image)
     else:
-        im.save(args.input[0])
+        im.save(source)
+        print(source)
+        input_stream = source
 
     IS.clean_temp()
 
