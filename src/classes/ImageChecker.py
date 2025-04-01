@@ -45,8 +45,11 @@ class ImageChecker():
             return ""
         return result[0]
     
-    def _get_resolution(self,_magic_string:str)->str:
-        return re.search(' ([0-9]+)x([0-9]+) ', _magic_string).groups()
+    def _get_resolution(self,_magic_string:str)->tuple:
+        search = re.search(' ([0-9]+)x([0-9]+) ', _magic_string)
+        if search is None:
+            return None,None
+        return search.groups()
     
     def _get_image_format(self,_magic_string:str)->str:
         return _magic_string.split(" ")[1].lower()
