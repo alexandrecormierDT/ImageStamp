@@ -128,7 +128,7 @@ def process_img(_path,args)->Image:
 
     if input_stream is None or input_stream == "":
         print("Image stream is None")
-        sys.exit(0)
+        return input_stream
 
     im = Image.open(input_stream)
 
