@@ -63,7 +63,7 @@ class ImageChecker():
         result = re.search(r'(\d+)x(\d+)', _magic_string)
         if not result:
             raise ValueError(
-                f"Could not parse resolution from ImageMagick output: { _magic_string!r }"
+                f"Could not parse resolution from ImageMagick output:{_magic_string!r}"
             )
         return result.groups()
     
@@ -95,7 +95,7 @@ class ImageChecker():
         if infos["width"]>self._max_width:
             print(f"[ImageChecker] ERROR max width {self._max_width} reached {width}")
             return False
-        if infos["heigth"]>self._max_heigth:
+        if infos["height"]>self._max_heigth:
             print(f"[ImageChecker] ERROR max heigth {self._max_heigth} reached ({heigth})")
             return False
         return True
