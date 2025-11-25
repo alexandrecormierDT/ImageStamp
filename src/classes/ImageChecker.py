@@ -12,21 +12,35 @@ class ImageChecker():
     def __init__(self):
         ...
 
-    def _get_image_infos(self,_path:str)->dict:
-        args = [self._image_magick_path,"identify",_path]
-        result =subprocess.run(args, stdout=subprocess.PIPE)
+    def _get_image_infos(self, _path: str) -> dict:
+        args = [self._image_magick_path, "identify", _path]
+        result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.returncode != 0:
+            raise RuntimeError(f"ImageMagick identify failed for '{_path}': {result.stderr.decode()}")
+
         string = result.stdout.decode('utf-8')
-        # PNG image data, 782 x 602, 8-bit/color RGBA, non-interlaced
-        width,heigth = self._get_resolution(string)
+        width, height = self._get_resolution(string)
+
+        # ---- EARLY VALIDATION ----
+        if width is None or height is None:
+            raise ValueError(f"Failed to parse resolution from `identify` output: {string!r}")
+
+        bitdepth = self._get_bitdepth(string)
+        if bitdepth is None:
+            raise ValueError(f"Failed to parse bit depth from: {string!r}")
+
+        colorspace = self._get_colorspace(string)
+        image_format = self._get_image_format(string)
 
         return {
-            "width":int(width),
-            "heigth":int(heigth),
-            "bitdepth":int(self._get_bitdepth(string)),
-            "colorspace":self._get_colorspace(string),
-            "image_format":self._get_image_format(string),
-            "nb_pixels":int(width)*int(heigth)
-        }   
+            "width": int(width),
+            "height": int(height),
+            "bitdepth": int(bitdepth),
+            "colorspace": colorspace,
+            "image_format": image_format,
+            "nb_pixels": int(width) * int(height)
+        }  
 
     def get_max_width(self)->int:
         return self._max_width
@@ -45,8 +59,13 @@ class ImageChecker():
             return ""
         return result[0]
     
-    def _get_resolution(self,_magic_string:str)->str:
-        return re.search(' ([0-9]+)x([0-9]+) ', _magic_string).groups()
+    def _get_resolution(self, _magic_string: str) -> tuple[int, int]:
+        result = re.search(r'(\d+)x(\d+)', _magic_string)
+        if not result:
+            raise ValueError(
+                f"Could not parse resolution from ImageMagick output:{_magic_string!r}"
+            )
+        return result.groups()
     
     def _get_image_format(self,_magic_string:str)->str:
         return _magic_string.split(" ")[1].lower()
@@ -76,7 +95,7 @@ class ImageChecker():
         if infos["width"]>self._max_width:
             print(f"[ImageChecker] ERROR max width {self._max_width} reached {width}")
             return False
-        if infos["heigth"]>self._max_heigth:
+        if infos["height"]>self._max_heigth:
             print(f"[ImageChecker] ERROR max heigth {self._max_heigth} reached ({heigth})")
             return False
         return True
@@ -86,6 +105,10 @@ class ImageChecker():
             return None
         if self.validate(_path_or_paths)==False:
             return None
+        return _path_or_paths
+        
+    def check_svg(self,_path_or_paths:str=None):
+        # wip
         return _path_or_paths
         
 
