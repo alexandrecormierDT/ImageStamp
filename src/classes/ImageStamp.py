@@ -8,6 +8,7 @@ from classes.ImageEditor import ImageEditor
 from classes.Harmoniser import Harmoniser
 from classes.PathManager import PathManager
 from classes.VideoEditor import VideoEditor
+from classes.Vectorisator import Vectorisator
 from PIL import Image,ImageOps,ImageChops
 import json
 
@@ -25,6 +26,7 @@ class ImageStamp :
     _F:ImageFilter = ImageFilter()
     _E:ImageEditor = ImageEditor()
     _V:VideoEditor = VideoEditor()
+    _Ve:Vectorisator = Vectorisator()
     _IC:ImageChecker = ImageChecker()
 
     def add_qrcode(self,_source:str,_code:str,_integration_mode:str="grid",_strategy:str="optimaly_hidden"):
@@ -52,14 +54,27 @@ class ImageStamp :
     def read(self,_paths:list)->str:
         return self._R.read(_paths[0])
     
-    def find_qrcodes(self,_path:str,_output:str="")->dict:
 
-        frames = self._V.extract_frames(_path[0])
+    def _find_qrcodes_in_image(self,_path:str)->dict:
+        found = self._R.find(_path)
+        if len(found)==0:
+            return {}
+        table = {
+            "files":[_path],
+            "qrcodes":[item.data.decode('utf-8') for item in found]
+        }
+        return table
+        ...
+    def _find_qrcodes_in_video(self,_path:str)->dict:
+
+        frames = self._V.extract_frames(_path)
         skip_rate = 1
         index = 0
         frame_table = {}
         code_table = {}
         search_list = []
+        qrcodes = []
+        
 
         for frame_path in frames:
             index+=1
@@ -73,6 +88,8 @@ class ImageStamp :
             #unique codes 
             data = list(set(data))
             first_code = data[0]
+            if first_code not in qrcodes:
+                qrcodes.append(first_code)
             frame_table[str(index)] = data
             if first_code not in code_table.keys():
                 code_table[first_code] = []
@@ -84,10 +101,31 @@ class ImageStamp :
             "input_path":_path,
             "frame_table":frame_table,
             "code_table":code_table,
+            "qrcodes":qrcodes,
             "search":search_list, # will be used to cominucate with sgrequest
             "result":{}
         }
+        return result
 
+
+
+    def _is_video(self,_path:str)->bool:
+        ext = os.path.basename(_path).split(".")[-1]
+        return ext in ["mov","mp4","avi"]
+        ...
+    def _is_image(self,_path:str)->bool:
+        ext = os.path.basename(_path).split(".")[-1]
+        return ext in ["jpg","png","dpx","tga","tif","exr"]
+    
+    def find_qrcodes(self,_path:str,_output:str="")->dict:
+        path = _path
+        if type(_path)==list:
+            path = _path[0]
+        if self._is_video(path):
+            result =  self._find_qrcodes_in_video(path)
+        if self._is_image(path):
+            result =  self._find_qrcodes_in_image(path)
+        
         with open(_output,"w") as file:
             file.write(json.dumps(result))
         return result
@@ -107,6 +145,11 @@ class ImageStamp :
             return ""
         self._C.set_axe(_axe)
         return self._C.combine(_paths)
+    
+    def convert_to_svg(self,_path:str)->str:
+        if _path is None:
+            return ""
+        return self._Ve.vectorise(_path)
     
     def maximise(self,_paths:list,_axe:str="H")->str:
         if _paths is None:

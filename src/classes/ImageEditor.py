@@ -33,6 +33,15 @@ class ImageEditor():
         path = self._PM.get_temp_image_path()
         resized.save(path)
         return  path
+    
+    def vectorise(self,_path:str,_width:int=0)->str:
+        img = Image.open(_path)
+        wpercent = (_width / float(img.size[0]))
+        hsize = int((float(img.size[1]) * float(wpercent)))
+        resized = img.resize((_width, hsize), Image.Resampling.LANCZOS)
+        path = self._PM.get_temp_image_path()
+        resized.save(path)
+        return  path
 
     def split(self,_path:str,_value:int=2)->list:
 

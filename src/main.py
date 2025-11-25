@@ -3,10 +3,10 @@ sys.path.insert(0,'P:/pipeline/extra_scripts/python_include')
 from classes.ImageStamp import ImageStamp
 from classes.ImageChecker import ImageChecker
 from PIL import Image
+import shutil
 import argparse
     
 def main():
-    print("ImageStamp")
     parser = argparse.ArgumentParser(prog='ImageStamp',description='add qrcode to image')
     parser.add_argument('-read','--read',action='store_true') 
     parser.add_argument('-find_qrcodes','--find_qrcodes',action='store_true') 
@@ -15,6 +15,7 @@ def main():
     parser.add_argument('-maximise','--maximise',action='store_true') 
     parser.add_argument('-check_image','--check_image',action='store_true') 
     parser.add_argument('-create_diff_map','--create_diff_map',action='store_true') 
+    parser.add_argument('-convert_to_svg','--convert_to_svg',action='store_true') 
     parser.add_argument('-add_text','--add_text') 
     parser.add_argument('-add_watermark','--add_watermark') 
     parser.add_argument('-add_overlay','--add_overlay') 
@@ -69,6 +70,9 @@ def main():
 
     if isinstance(input_stream,list):
         input_stream = input_stream[0]
+
+    if args.convert_to_svg:
+        input_stream =IC.check_svg(IS.convert_to_svg(input_stream))
         
     if args.add_text:
         input_stream = IC.check(IS.add_text(input_stream,args.add_text))
@@ -94,18 +98,28 @@ def main():
         print("Image stream is None")
         sys.exit(0)
 
-    im = Image.open(input_stream)
-    #im.show()
-
     if args.output_image:
+        if input_stream.split(".")[-1] in ["svg",'tvg']:
+            copy_and_rename(input_stream,args.output_image)
+            IS.clean_temp()
+            return input_stream
+        im = Image.open(input_stream)
         im.save(args.output_image)
-    else:
-        im.save(args.input[0])
 
     IS.clean_temp()
 
     return input_stream
     
+def copy_and_rename(input_stream, output_image):
+    """
+    Copy a file from input_stream to output_image.
+
+    Args:
+        input_stream (str): Source file path.
+        output_image (str): Destination file path (new name or location).
+    """
+    shutil.copyfile(input_stream, output_image)
+    print(f"Copied file from '{input_stream}' to '{output_image}'")
         
 if __name__=="__main__":
     result = main()
