@@ -17,30 +17,26 @@ class ImageChecker():
         result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.returncode != 0:
-            raise RuntimeError(f"ImageMagick identify failed for '{_path}': {result.stderr.decode()}")
+            # Identify failed — catch the error *early*
+            stderr_msg = result.stderr.decode('utf-8', errors='replace')
+            raise RuntimeError(
+                f"ImageMagick identify failed for {_path!r}: {stderr_msg!r}"
+            )
 
-        string = result.stdout.decode('utf-8')
+        string = result.stdout.decode('utf-8', errors='replace')
+
         width, height = self._get_resolution(string)
-
-        # ---- EARLY VALIDATION ----
-        if width is None or height is None:
-            raise ValueError(f"Failed to parse resolution from `identify` output: {string!r}")
-
         bitdepth = self._get_bitdepth(string)
-        if bitdepth is None:
-            raise ValueError(f"Failed to parse bit depth from: {string!r}")
-
-        colorspace = self._get_colorspace(string)
-        image_format = self._get_image_format(string)
 
         return {
             "width": int(width),
             "height": int(height),
             "bitdepth": int(bitdepth),
-            "colorspace": colorspace,
-            "image_format": image_format,
+            "colorspace": self._get_colorspace(string),
+            "image_format": self._get_image_format(string),
             "nb_pixels": int(width) * int(height)
-        }  
+        }
+
 
     def get_max_width(self)->int:
         return self._max_width
@@ -80,24 +76,44 @@ class ImageChecker():
                 return False
         return True
 
-    def _validate(self,_path:str):
-        if os.path.exists(_path)==False:
+    def _validate(self, _path: str):
+        # --- 1) Check if file exists ---
+        if not os.path.exists(_path):
+            print(f"[ImageChecker] ERROR file does not exist: {_path}")
             return False
-        infos = self._get_image_infos(_path)
-        print(f"[ImageChecker] {_path} ")
-        print(f"[ImageChecker] {infos} ")
+
+        # --- 2) Check if file is empty (0 bytes) ---
+        if os.path.getsize(_path) == 0:
+            print(f"[ImageChecker] ERROR file is empty (0 bytes): {_path}")
+            return False
+
+        # --- 3) Get image infos, catch ImageMagick errors ---
+        try:
+            infos = self._get_image_infos(_path)
+        except RuntimeError as e:
+            print(f"[ImageChecker] ERROR corrupted or unreadable image: {_path}\n{e}")
+            return False
+
+        print(f"[ImageChecker] {_path}")
+        print(f"[ImageChecker] {infos}")
+
         nb_pixels = infos["nb_pixels"]
-        width = infos["nb_pixels"]
-        heigth = infos["nb_pixels"]
-        if nb_pixels>self._max_nb_of_pixels:
-            print(f"[ImageChecker] ERROR max nb of pixel {self._max_nb_of_pixels} reached ({nb_pixels})")
+        width = infos["width"]
+        height = infos["height"]
+
+        # --- 4) Validate dimensions & pixel count ---
+        if nb_pixels > self._max_nb_of_pixels:
+            print(f"[ImageChecker] ERROR max nb of pixels {self._max_nb_of_pixels} reached ({nb_pixels})")
             return False
-        if infos["width"]>self._max_width:
-            print(f"[ImageChecker] ERROR max width {self._max_width} reached {width}")
+
+        if width > self._max_width:
+            print(f"[ImageChecker] ERROR max width {self._max_width} reached ({width})")
             return False
-        if infos["height"]>self._max_heigth:
-            print(f"[ImageChecker] ERROR max heigth {self._max_heigth} reached ({heigth})")
+
+        if height > self._max_heigth:
+            print(f"[ImageChecker] ERROR max height {self._max_heigth} reached ({height})")
             return False
+
         return True
     
     def check(self,_path_or_paths:str=None):
