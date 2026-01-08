@@ -4,9 +4,9 @@ import subprocess
 
 class ImageChecker():
 
-    _max_nb_of_pixels:int = 178956970
-    _max_heigth:int = 15000
-    _max_width:int = 15000
+    _max_heigth:int = 18000
+    _max_width:int = 18000
+    _max_nb_of_pixels:int = 18000*18000
     _image_magick_path = "P:/pipeline/extra_soft/ImageMagick-7.0.10-Q16/magick.exe"
 
     def __init__(self):
