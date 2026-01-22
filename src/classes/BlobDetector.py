@@ -41,7 +41,7 @@ class BlobDetector:
     
 
     def _square_color_variation_is_bellow_thres(self,_image:cv2.typing.MatLike,_top_x:int,_top_y:int,_width:int,_thres:int):
-
+        ...
 
 
     def _pixels_color_variation_is_bellow_thres(self,_image:cv2.typing.MatLike,_pixels:list[list],_start_value:int=0,_thres:int=100)->bool:

@@ -20,6 +20,7 @@ def main():
     parser.add_argument('-add_overlay','--add_overlay') 
     parser.add_argument('-add_qrcode','--add_qrcode') 
     parser.add_argument('-apply_filter','--apply_filter') 
+    parser.add_argument('-unpuzzle','--unpuzzle') 
     parser.add_argument("-i","--input",action='append' ,required=True)
     parser.add_argument("-c","--code")
     parser.add_argument("-ct","--contrast")
@@ -64,6 +65,9 @@ def main():
 
     if args.create_diff_map:
         input_stream =IS.create_diff_map(input_stream[0],input_stream[1])
+
+    if args.unpuzzle:
+        input_stream =IS.unpuzzle(input_stream)
 
     # process on single images : 
 
