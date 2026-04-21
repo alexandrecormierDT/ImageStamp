@@ -79,19 +79,19 @@ class ImageChecker():
     def _validate(self, _path: str):
         # --- 1) Check if file exists ---
         if not os.path.exists(_path):
-            print(f"[ImageChecker] ERROR file does not exist: {_path}")
+            print(f"[ImageChecker] WARNING file does not exist: {_path}")
             return False
 
         # --- 2) Check if file is empty (0 bytes) ---
         if os.path.getsize(_path) == 0:
-            print(f"[ImageChecker] ERROR file is empty (0 bytes): {_path}")
+            print(f"[ImageChecker] WARNING file is empty (0 bytes): {_path}")
             return False
 
         # --- 3) Get image infos, catch ImageMagick errors ---
         try:
             infos = self._get_image_infos(_path)
         except RuntimeError as e:
-            print(f"[ImageChecker] ERROR corrupted or unreadable image: {_path}\n{e}")
+            print(f"[ImageChecker] WARNING corrupted or unreadable image: {_path}\n{e}")
             return False
 
         print(f"[ImageChecker] {_path}")
@@ -103,15 +103,15 @@ class ImageChecker():
 
         # --- 4) Validate dimensions & pixel count ---
         if nb_pixels > self._max_nb_of_pixels:
-            print(f"[ImageChecker] ERROR max nb of pixels {self._max_nb_of_pixels} reached ({nb_pixels})")
+            print(f"[ImageChecker] WARNING max nb of pixels {self._max_nb_of_pixels} reached ({nb_pixels})")
             return False
 
         if width > self._max_width:
-            print(f"[ImageChecker] ERROR max width {self._max_width} reached ({width})")
+            print(f"[ImageChecker] WARNING max width {self._max_width} reached ({width})")
             return False
 
         if height > self._max_heigth:
-            print(f"[ImageChecker] ERROR max height {self._max_heigth} reached ({height})")
+            print(f"[ImageChecker] WARNING max height {self._max_heigth} reached ({height})")
             return False
 
         return True
