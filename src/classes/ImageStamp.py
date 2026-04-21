@@ -8,7 +8,6 @@ from classes.ImageEditor import ImageEditor
 from classes.Harmoniser import Harmoniser
 from classes.PathManager import PathManager
 from classes.VideoEditor import VideoEditor
-from classes.Puzzle import Puzzle
 from PIL import Image,ImageOps,ImageChops
 import json
 
@@ -27,7 +26,6 @@ class ImageStamp :
     _E:ImageEditor = ImageEditor()
     _V:VideoEditor = VideoEditor()
     _IC:ImageChecker = ImageChecker()
-    _PZ:Puzzle = Puzzle()
 
     def add_qrcode(self,_source:str,_code:str,_integration_mode:str="grid",_strategy:str="optimaly_hidden"):
         self._I.set_strategy(_strategy)
@@ -149,7 +147,7 @@ class ImageStamp :
         return self._F.create_diff_map(_image_A,_image_B)
     
     def unpuzzle(self,_images)->str:
-        return self._PZ.unpuzzle(_images)
+        return _images
     
     def crop(self,_path:str,_x1:int=0,_x2:int=0,_y1:int=0,_y2:int=0)->Image:
         if _path is None:
